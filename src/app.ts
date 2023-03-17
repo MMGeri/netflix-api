@@ -8,7 +8,6 @@ const port = 3000;
 const app: Application = express();
 const apiSpec = path.join(__dirname, '/api/swagger/api.yaml');
 
-// 1. Install bodyParsers for the request types your API will support
 app.use(express.urlencoded({ extended: false }));
 app.use(express.text());
 app.use(express.json());
@@ -16,12 +15,11 @@ app.use(express.json());
 app.use(logger('combined'));
 app.use('/spec', express.static(apiSpec));
 
-// 2. Add the OpenApiValidator middleware
 app.use(
   OpenApiValidator.middleware({
     apiSpec,
-    // 3. Provide the path to the controllers directory
-    operationHandlers: path.join(__dirname), // default false
+    //https://github.com/cdimascio/express-openapi-validator/wiki/Documentation#example-express-api-server-with-operationhandlers
+    operationHandlers: path.join(__dirname), 
   }),
 );
 
@@ -39,3 +37,5 @@ console.log(`Listening on port ${port}`);
 
 // for testing purposes
 module.exports = app;
+
+

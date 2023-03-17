@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import axios from 'axios';
-import '../../app';
+import '../../app'; //ezzel indítjuk el az appot tesztelésnél
 
 describe('Ping controller', function () {
   const instance = axios.create({

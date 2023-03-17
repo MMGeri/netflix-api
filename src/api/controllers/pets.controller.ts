@@ -26,6 +26,12 @@ let pets: Pet[] = [
     type: 'dog',
     tags: [],
   },
+  {
+    id: 4,
+    name: 'maximilian',
+    type: 'dog',
+    tags: ['sweet','bestboi'],
+  },
 ];
 let creationId: number = 4;
 
@@ -33,7 +39,8 @@ let creationId: number = 4;
 function getPets(req: Request, res: Response) {
   const type = String(req.query.type);
   const limit = Number(req.query.limit);
-  const result = pets.filter(pet => pet.type === type).slice(0, limit);
+  const tags = req.query.tags as string[] || [];  //megvalosítottam a tagek szerinti szűrést
+  const result = pets.filter(pet => pet.type === type && tags.every(val => pet.tags.includes(val))).slice(0, limit);
   res.json(result);
 }
 
