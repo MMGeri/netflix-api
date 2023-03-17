@@ -141,7 +141,6 @@ paths:
       operationId: setVideo
       x-eov-operation-handler: api/controllers/videos.controller
       tags:
-        - Queues
         - Admin
       requestBody:
         required: true
