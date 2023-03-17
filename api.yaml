@@ -1,0 +1,342 @@
+openapi: '3.0.0'
+info:
+  version: 1.0.0
+  title: Netflix-API
+  description: Netflix api 
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: /
+tags:
+  - name: Users
+  - name: Videos
+    description: video specific actions like queues, videos
+  - name: Admin
+    description: actions only admins can do
+paths:
+  /users/create:
+    post:
+      description: |
+        creates a user
+      operationId: userCreate
+      x-eov-operation-handler: api/controllers/user.controller
+      tags:
+        - Users
+      requestBody:
+        description: User to create
+        required: true
+        content:
+          text/plain:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: OK
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/login:
+    post:
+      description: |
+        logs in a user
+      operationId: userLogin
+      x-eov-operation-handler: api/controllers/user.controller
+      tags:
+        - Users
+      requestBody:
+        description: User information
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session-id:
+                    type: string
+                    description: the session id
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/logout:
+    get:
+      description: |
+        log out of user
+      operationId: userLogout
+      x-eov-operation-handler: api/controllers/user.controller
+      tags:
+        - Users
+      parameters:
+        - in: header
+          name: X-Session-ID
+          schema: 
+            type: string
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+                
+  /videos:
+    get:
+      description: |
+        Returns videos
+      operationId: getVideos
+      x-eov-operation-handler: api/controllers/videos.controller
+      tags:
+        - Videos
+      parameters:
+        - name: title
+          in: query
+          description: title of the videos
+          required: false
+          schema:
+            type: string
+        - in: header
+          name: X-Session-ID
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: List of videos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    $ref: '#/components/schemas/Video'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      description: |
+        Create new video data
+      operationId: setVideo
+      x-eov-operation-handler: api/controllers/videos.controller
+      tags:
+        - Queues
+        - Admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Video'
+      parameters:
+        - in: header
+          name: X-Admin-API-key
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Ok
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      description: |
+          Change video data
+      operationId: changeVideo
+      x-eov-operation-handler: api/controllers/videos.controller
+      tags:
+        - Admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Video'
+      parameters:
+        - in: header
+          name: X-Admin-API-key
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Ok
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+                
+    delete:
+      description: |
+          Delete video data
+      operationId: deleteVideo
+      x-eov-operation-handler: api/controllers/videos.controller
+      tags:
+        - Admin
+      parameters:
+        - in: header
+          name: X-Admin-API-key
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Ok
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /queues:
+    post:
+      description: |
+        Download video to your queue
+      operationId: queueVideo
+      x-eov-operation-handler: api/controllers/videos.controller
+      tags:
+        - Queues
+      parameters:
+        - name: videoId
+          in: query
+          description: id of the video
+          required: true
+          schema:
+            type: number
+        - in: header
+          name: X-Session-ID
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Ok
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+                
+    get:
+      description: |
+        Download video to your queue
+      operationId: getQueue
+      x-eov-operation-handler: api/controllers/queue.controller
+      tags:
+        - Queues
+      parameters:
+        - name: id
+          in: query
+          description: id of the video
+          required: true
+          schema:
+            type: number
+        - in: header
+          name: X-Session-ID
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Ok
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    User:
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    Video:
+      properties:
+        id:
+         type: number
+        title:
+          type: string
+        category:
+          type: string
+        type:
+          type: string
+          enum:
+            - Tv Show
+            - Movie
+
+    Error:
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
