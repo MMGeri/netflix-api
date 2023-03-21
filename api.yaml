@@ -322,12 +322,17 @@ paths:
               properties:
                 titile:
                   type: string
+                  example: Titanic
                 category:
                   type: string
+                  description: category of the video or tv show
+                  example: romance
                 type:
+                  type: string
                   enum:
                     - Movie
                     - TV Show
+                  example: Movie
             example:
               title: Titanic
               category: Romance
