@@ -3,9 +3,6 @@ info:
   version: 1.0.0
   title: Netflix-API
   description: Netflix API
-  license:
-    name: Apache 2.0
-    url: https://www.apache.org/licenses/LICENSE-2.0.html
 tags:
   - name: Users
   - name: Videos
@@ -13,7 +10,7 @@ tags:
   - name: Admin
     description: actions only admins can do
 paths:
-  /users/create:
+  /users:
     post:
       description: |
         creates a user
@@ -27,34 +24,71 @@ paths:
         content:
           text/plain:
             schema:
-              $ref: '#/components/schemas/User'
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+            example:
+              username: mgeri
+              password: asdfghjkl1234
       responses:
-        '200':
-          description: OK
-        default:
-          description: unexpected error
+        '201':
+          description: User was created succesfuly and returned a user with an id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /users/login:
+              example:
+                code: 400
+                message: Password doesn't conform to the specifications
+        '409':
+          description: Conlict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 409
+                message: User with given username already exists
+        default:
+          description: unexpected error happened, for example internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{id}/login:
     post:
       description: |
-        logs in a user
+        logs in a user and returns the user object
       operationId: userLogin
       x-eov-operation-handler: api/controllers/user.controller
       tags:
         - Users
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
       requestBody:
         description: User information
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              properties:
+                password:
+                  type: string
       responses:
         '200':
-          description: OK
+          description: returns a session id
           content:
             application/json:
               schema:
@@ -63,13 +97,31 @@ paths:
                   session-id:
                     type: string
                     description: the session id
-        '403':
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: User does not exist
+        '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /users/logout:
+              example:
+                code: 401
+                message: Password is incorrect
+        default:
+          description: unexpected error happened, for example internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{id}/logout:
     get:
       description: |
         log out of user
@@ -82,11 +134,130 @@ paths:
           name: X-Session-ID
           schema: 
             type: string
+        - in: path
+          name: id
+          required: true
+          schema: 
+            type: string
       responses:
         '200':
           description: OK
-        '403':
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: User is not logged in
+        default:
+          description: unexpected error happened, for example internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{id}/queue:
+    put:
+      description: |
+        Update the users queue with the video specified by its id
+      operationId: queueVideo
+      x-eov-operation-handler: api/controllers/user.controller
+      tags:
+        - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                  videoid:
+                    type: string
+                    description: id of the video
+            example:
+              videoid: asdjald
+      parameters:
+        - name: id
+          in: path
+          description: id of the user
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: X-Session-ID
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: The updated queue array
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Queue'
+        '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 401
+                message: User needs to be logged in
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+                
+    get:
+      description: |
+        Get your queue
+      operationId: getQueue
+      x-eov-operation-handler: api/controllers/user.controller
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          description: id of the user
+          required: true
+          schema:
+            type: string
+        - name: sort
+          in: query
+          required: true
+          description: sort by
+          schema:
+            enum:
+              - title
+              - id
+              - type
+              - category
+        - in: header
+          name: X-Session-ID
+          schema:
+            type: string
+          required: true
+          description: session id
+      responses:
+        '200':
+          description: An array of videos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Queue'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 401
+                message: User needs to be logged in
+        default:
+          description: unexpected error
           content:
             application/json:
               schema:
@@ -95,8 +266,216 @@ paths:
   /videos:
     get:
       description: |
-        Returns videos
+        Returns videos or tv shows by search with title
       operationId: getVideos
+      x-eov-operation-handler: api/controllers/videos.controller
+      tags:
+        - Admin
+      parameters:
+        - name: title
+          in: query
+          description: title of the video or tv show
+          required: false
+          schema:
+            type: string
+        - in: header
+          name: X-Session-ID
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: List of videos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    $ref: '#/components/schemas/Video'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 401
+                message: User needs provide an api key
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      description: |
+        Create new video data
+      operationId: createVideo
+      x-eov-operation-handler: api/controllers/videos.controller
+      tags:
+        - Admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                titile:
+                  type: string
+                category:
+                  type: string
+                type:
+                  enum:
+                    - Movie
+                    - TV Show
+            example:
+              title: Titanic
+              category: Romance
+              type: Movie
+      parameters:
+        - in: header
+          name: X-Admin-API-key
+          schema:
+            type: string
+          required: true
+      responses:
+        '201':
+          description: Video created
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Value provided for type does not match any of the possible values
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 401
+                message: User needs to provide an api key
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /videos/{id}:
+    put:
+      description: |
+          Change video data
+      operationId: changeVideo
+      x-eov-operation-handler: api/controllers/videos.controller
+      tags:
+        - Admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Video'
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: X-Admin-API-key
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Ok
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Value provided for type does not match any of the possible values
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 401
+                message: User needs to provide an api key
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Video with given id doesn't exist
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      description: |
+          Delete video data
+      operationId: deleteVideo
+      x-eov-operation-handler: api/controllers/videos.controller
+      tags:
+        - Admin
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: X-Admin-API-key
+          schema:
+            type: string
+          required: true
+      responses:
+        '204':
+          description: No content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 401
+                message: User needs to provide an api key
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Video with given id doesn't exist
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /videos/search:
+    get:
+      description: |
+        Returns videos
+      operationId: searchVideos
       x-eov-operation-handler: api/controllers/videos.controller
       tags:
         - Videos
@@ -121,7 +500,7 @@ paths:
                 type: array
                 items:
                     $ref: '#/components/schemas/Video'
-        '403':
+        '401':
           description: Unauthorized
           content:
             application/json:
@@ -133,201 +512,59 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    post:
-      description: |
-        Create new video data
-      operationId: setVideo
-      x-eov-operation-handler: api/controllers/videos.controller
-      tags:
-        - Admin
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Video'
-      parameters:
-        - in: header
-          name: X-Admin-API-key
-          schema:
-            type: string
-          required: true
-      responses:
-        '200':
-          description: Ok
-        '403':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    put:
-      description: |
-          Change video data
-      operationId: changeVideo
-      x-eov-operation-handler: api/controllers/videos.controller
-      tags:
-        - Admin
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Video'
-      parameters:
-        - in: header
-          name: X-Admin-API-key
-          schema:
-            type: string
-          required: true
-      responses:
-        '200':
-          description: Ok
-        '403':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-                
-    delete:
-      description: |
-          Delete video data
-      operationId: deleteVideo
-      x-eov-operation-handler: api/controllers/videos.controller
-      tags:
-        - Admin
-      parameters:
-        - in: header
-          name: X-Admin-API-key
-          schema:
-            type: string
-          required: true
-      responses:
-        '200':
-          description: Ok
-        '403':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  
-  /queues:
-    post:
-      description: |
-        Download video to your queue
-      operationId: queueVideo
-      x-eov-operation-handler: api/controllers/videos.controller
-      tags:
-        - Queues
-      parameters:
-        - name: videoId
-          in: query
-          description: id of the video
-          required: true
-          schema:
-            type: number
-        - in: header
-          name: X-Session-ID
-          schema:
-            type: string
-          required: true
-      responses:
-        '200':
-          description: Ok
-        '403':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-                
-    get:
-      description: |
-        Download video to your queue
-      operationId: getQueue
-      x-eov-operation-handler: api/controllers/queue.controller
-      tags:
-        - Queues
-      parameters:
-        - name: id
-          in: query
-          description: id of the video
-          required: true
-          schema:
-            type: number
-        - in: header
-          name: X-Session-ID
-          schema:
-            type: string
-          required: true
-      responses:
-        '200':
-          description: Ok
-        '403':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
+    
 components:
   schemas:
+  
     User:
-      required:
-        - username
-        - password
-      properties:
-        username:
-          type: string
-        password:
-          type: string
-    Video:
+      description: A user object
       properties:
         id:
-         type: number
+          type: string
+          description: The id of the user
+        username:
+          type: string
+          description: The username / email of the user
+        password:
+          type: string
+          description: The password of  the user
+      example:
+        id: poaidsp
+        username: mgeri
+        password: password1234
+        
+    Video:
+      description: A video object
+      title: Video
+      properties:
+        id:
+         type: string
+         description: Unique identifier for the video generated by the database
         title:
           type: string
+          description: Title of the video
         category:
           type: string
+          description: The category / genre of the video or tv show
         type:
           type: string
           enum:
-            - Tv Show
+            - TV Show
             - Movie
-
+      example:
+        id: asdjald
+        title: The matrix
+        category: Action
+        type: Movie
+        
+    Queue:
+      description: An array of videos
+      type: array
+      items:
+        $ref: '#/components/schemas/Video'
+        
     Error:
+      description: Default error, for example when internal server error occured
       required:
         - code
         - message
@@ -335,5 +572,10 @@ components:
         code:
           type: integer
           format: int32
+          description: The http status code of the response
         message:
           type: string
+      example:
+        code: 500
+        message: Internal server error
+      
