@@ -2,7 +2,7 @@ openapi: '3.0.0'
 info:
   version: 1.0.0
   title: Netflix-API
-  description: Netflix api 
+  description: Netflix API
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
