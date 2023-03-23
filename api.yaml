@@ -5,10 +5,9 @@ info:
   description: Netflix API
 tags:
   - name: Users
+    description: user specific actions like creating, logging in logging out
   - name: Videos
     description: video specific actions like queues, videos
-  - name: Admin
-    description: actions only admins can do
 paths:
   /users:
     post:
@@ -22,16 +21,21 @@ paths:
         description: User to create
         required: true
         content:
-          text/plain:
+          application/json:
             schema:
               properties:
                 username:
+                  description: The username of the user
                   type: string
+                  example: mgeri
                 password:
+                  description: The password of the user
                   type: string
-            example:
-              username: mgeri
-              password: asdfghjkl1234
+                  example: asdfghjkl1234
+              required:
+                - username
+                - password
+              additionalProperties: false
       responses:
         '201':
           description: User was created succesfuly and returned a user with an id
@@ -85,7 +89,12 @@ paths:
             schema:
               properties:
                 password:
+                  description: password of the user
                   type: string
+                  example: password1234
+              required:
+                - password
+              additionalProperties: false
       responses:
         '200':
           description: returns a session id
@@ -166,15 +175,19 @@ paths:
       tags:
         - Users
       requestBody:
+        description: Select the video which you want to put into the queue
+        required: true
         content:
           application/json:
             schema:
               properties:
-                  videoid:
+                  videoId:
                     type: string
                     description: id of the video
-            example:
-              videoid: asdjald
+                    example: asdpifn1
+              required:
+                - videoid
+              additionalProperties: false
       parameters:
         - name: id
           in: path
@@ -270,7 +283,7 @@ paths:
       operationId: getVideos
       x-eov-operation-handler: api/controllers/videos.controller
       tags:
-        - Admin
+        - Video
       parameters:
         - name: title
           in: query
@@ -313,7 +326,7 @@ paths:
       operationId: createVideo
       x-eov-operation-handler: api/controllers/videos.controller
       tags:
-        - Admin
+        - Video
       requestBody:
         required: true
         content:
@@ -321,6 +334,7 @@ paths:
             schema:
               properties:
                 titile:
+                  description: The title of the movie or tv show
                   type: string
                   example: Titanic
                 category:
@@ -328,15 +342,17 @@ paths:
                   description: category of the video or tv show
                   example: romance
                 type:
+                  description: the type of the media like Movie or TV Show
                   type: string
                   enum:
                     - Movie
                     - TV Show
                   example: Movie
-            example:
-              title: Titanic
-              category: Romance
-              type: Movie
+              required:
+                - title
+                - category
+                - type
+              additionalProperties: false
       parameters:
         - in: header
           name: X-Admin-API-key
@@ -377,7 +393,7 @@ paths:
       operationId: changeVideo
       x-eov-operation-handler: api/controllers/videos.controller
       tags:
-        - Admin
+        - Video
       requestBody:
         required: true
         content:
@@ -437,7 +453,7 @@ paths:
       operationId: deleteVideo
       x-eov-operation-handler: api/controllers/videos.controller
       tags:
-        - Admin
+        - Video
       parameters:
         - in: path
           name: id
@@ -561,6 +577,12 @@ components:
         title: The matrix
         category: Action
         type: Movie
+      required: 
+        - id
+        - title
+        - category
+        - type
+      additionalProperties: false
         
     Queue:
       description: An array of videos
