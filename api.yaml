@@ -38,7 +38,7 @@ paths:
               additionalProperties: false
       responses:
         '201':
-          description: User was created succesfuly and returned a user with an id
+          description: User was created
           content:
             application/json:
               schema:
@@ -53,7 +53,7 @@ paths:
                 code: 400
                 message: Password doesn't conform to the specifications
         '409':
-          description: Conlict
+          description: Conflict
           content:
             application/json:
               schema:
