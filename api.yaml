@@ -124,6 +124,20 @@ paths:
               example:
                 code: 401
                 message: Password is incorrect
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: number
+                    description: response code of the http request
+                    example: 404
+                  message:
+                    type: string
+                    description: response code of the http request
+                    example: User with the specified id does not exist
         default:
           description: unexpected error happened, for example internal server error
           content:
@@ -160,6 +174,24 @@ paths:
               example:
                 code: 400
                 message: User is not logged in
+        '401':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 401
+                message: You are not logged in
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 404
+                message: User with specified id does not exist
         default:
           description: unexpected error happened, for example internal server error
           content:
@@ -216,6 +248,15 @@ paths:
               example:
                 code: 401
                 message: User needs to be logged in
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 404
+                message: The user with the specified id doesn't exist
         default:
           description: unexpected error
           content:
@@ -283,7 +324,7 @@ paths:
       operationId: getVideos
       x-eov-operation-handler: api/controllers/videos.controller
       tags:
-        - Video
+        - Videos
       parameters:
         - name: title
           in: query
@@ -326,7 +367,7 @@ paths:
       operationId: createVideo
       x-eov-operation-handler: api/controllers/videos.controller
       tags:
-        - Video
+        - Videos
       requestBody:
         required: true
         content:
@@ -393,7 +434,7 @@ paths:
       operationId: changeVideo
       x-eov-operation-handler: api/controllers/videos.controller
       tags:
-        - Video
+        - Videos
       requestBody:
         required: true
         content:
@@ -453,7 +494,7 @@ paths:
       operationId: deleteVideo
       x-eov-operation-handler: api/controllers/videos.controller
       tags:
-        - Video
+        - Videos
       parameters:
         - in: path
           name: id
@@ -543,17 +584,16 @@ components:
         id:
           type: string
           description: The id of the user
+          example: poaidsp
         username:
           type: string
           description: The username / email of the user
+          example: mgeri
         password:
           type: string
           description: The password of  the user
-      example:
-        id: poaidsp
-        username: mgeri
-        password: password1234
-        
+          example: password1234
+          
     Video:
       description: A video object
       title: Video
