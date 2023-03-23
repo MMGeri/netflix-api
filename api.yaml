@@ -48,19 +48,35 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                message: Password doesn't conform to the specifications
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 400
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: Bad request
+                required:
+                  - code
+                  - message
         '409':
           description: Conflict
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 409
-                message: User with given username already exists
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 409
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: The user with the given id already exists
+                required:
+                  - code
+                  - message
         default:
           description: unexpected error happened, for example internal server error
           content:
@@ -111,19 +127,35 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                message: User does not exist
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 400
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: Bad request
+                required:
+                  - code
+                  - message
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 401
-                message: Password is incorrect
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 401
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: Password is incorrect
+                required:
+                  - code
+                  - message
         '404':
           description: Not found
           content:
@@ -170,28 +202,52 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                message: User is not logged in
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 400
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: Bad request
+                required:
+                  - code
+                  - message
         '401':
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 401
-                message: You are not logged in
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 401
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: You need to be logged in for this action
+                required:
+                  - code
+                  - message
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 404
-                message: User with specified id does not exist
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: User with specified id does not exist
+                required:
+                  - code
+                  - message
         default:
           description: unexpected error happened, for example internal server error
           content:
@@ -244,19 +300,35 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 401
-                message: User needs to be logged in
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 401
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: You need to be logged in for this action
+                required:
+                  - code
+                  - message
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 404
-                message: The user with the specified id doesn't exist
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: The user with specified id does not exist
+                required:
+                  - code
+                  - message
         default:
           description: unexpected error
           content:
@@ -306,10 +378,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 401
-                message: User needs to be logged in
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 400
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: User needs to be logged in
+                required:
+                  - code
+                  - message
         default:
           description: unexpected error
           content:
@@ -351,10 +431,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 401
-                message: User needs provide an api key
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 401
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: You need to provide a valid api key
+                required:
+                  - code
+                  - message
         default:
           description: unexpected error
           content:
@@ -408,19 +496,35 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                message: Value provided for type does not match any of the possible values
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: Value provided for type does not match any of the possible values
+                required:
+                  - code
+                  - message
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 401
-                message: User needs to provide an api key
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 401
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: You need to provide a valid api key
+                required:
+                  - code
+                  - message
         default:
           description: unexpected error
           content:
@@ -460,28 +564,52 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                message: Value provided for type does not match any of the possible values
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 401
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: Value provided for type does not match any of the possible values
+                required:
+                  - code
+                  - message
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 401
-                message: User needs to provide an api key
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 401
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: You need to provide a valid api key
+                required:
+                  - code
+                  - message
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                message: Video with given id doesn't exist
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 401
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: Video with the provided id does not exist
+                required:
+                  - code
+                  - message
         default:
           description: unexpected error
           content:
@@ -514,19 +642,35 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 401
-                message: User needs to provide an api key
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 401
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: You need to provide a valid api key
+                required:
+                  - code
+                  - message
         '404':
           description: Not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                message: Video with given id doesn't exist
+                properties:
+                  code:
+                    description: Http status code
+                    type: number
+                    example: 401
+                  message:
+                    description: The message of the response
+                    type: string
+                    example: Video with the provided id does not exist
+                required:
+                  - code
+                  - message
         default:
           description: unexpected error
           content:
