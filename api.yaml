@@ -642,6 +642,8 @@ components:
           description: The http status code of the response
         message:
           type: string
+          description: The message of the response
+      additionalProperties: false
       example:
         code: 500
         message: Internal server error
