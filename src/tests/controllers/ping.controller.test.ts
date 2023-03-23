@@ -15,7 +15,7 @@ describe('Ping controller', function () {
       expect(response.status).to.equal(200);
     });
 
-    it('should return ping.', async () => {
+    it('should return pong.', async () => {
       const response = await instance.get('/ping');
 
       expect(response.data).to.equal('pong');

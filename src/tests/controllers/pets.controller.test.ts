@@ -9,74 +9,85 @@ describe('Pets controller', function () {
     });
 
     describe('GET /pets', function () {
-        it('should return an error', async () => {
-            const response = await instance.get('/pets');
+        describe('called without limit or type query parameters', () => {
 
-            expect(isError(response.data)).to.be.true;
-            expect(response.status).to.equal(400);
-        });
+            it('should return an error with status code 400', async () => {
+                const response = await instance.get('/pets');
+
+                expect(isError(response.data)).to.be.true;
+                expect(response.status).to.equal(400);
+            });
+        })
     });
 
     describe('GET /pets?type=dog&limit=2', function () {
-        it('should return all dogs', async () => {
+        it('should return a maximum of two dogs', async () => {
             const response = await instance.get('/pets?type=dog&limit=2');
             console.log(response.data);
             expect(response.data).to.be.an('array');
-            expect(response.data.length).to.equal(2);
-            expect(response.data[0].id).to.equal(1);
+            expect(response.data.length).to.be.lessThanOrEqual(2);
+
+            expect(response.data[0].id).to.not.equal(response.data[1].id);
             expect(response.data[0].type).to.equal("dog");
+            expect(response.data[1].type).to.equal("dog");
         });
     });
 
     describe('GET /pets?type=cat&limit=1', function () {
-        it('should return one cat', async () => {
+        it('should return a maximum of one cat', async () => {
             const response = await instance.get('/pets?type=cat&limit=1');
 
             expect(response.data).to.be.an('array');
-            expect(response.data.length).to.equal(1);
+            expect(response.data.length).to.lessThanOrEqual(1);
             expect(response.data[0].id).to.equal(2);
             expect(response.data[0].type).to.equal("cat");
         });
     });
 
-    describe('GET /pets?type=dog&limit=2&tags[]=sweet',function () {
-        it('should return response 200', async () =>{
-          const response = await instance.get('/pets?type=dog&limit=2&tags[]=sweet');
-
-          expect(response.status).to.equal(200);
-        })
-        it('should return two dogs', async () =>{
+    describe('GET /pets?type=dog&limit=2&tags[]=sweet', function () {
+        it('should return response 200', async () => {
             const response = await instance.get('/pets?type=dog&limit=2&tags[]=sweet');
-            
+
+            expect(response.status).to.equal(200);
+        })
+        it('should return a maximum of two dogs with tags sweet', async () => {
+            const response = await instance.get('/pets?type=dog&limit=2&tags[]=sweet');
+
             expect(response.data).to.be.an('array');
+            expect(response.data.length).to.lessThanOrEqual(2);
+            expect(response.data[0].id).to.not.equal(response.data[1].id);
+
             expect(response.data[0].type).to.equal("dog");
-            expect(response.data.length).to.equal(2);
-          })
+            expect(response.data[1].type).to.equal("dog");
+            expect(response.data[0].tags).to.include('sweet');
+            expect(response.data[1].tags).to.include('sweet');
+        })
     })
 
-    describe('GET /pets?type=dog&limit=2&tags[]=sweet&tags[]=bestboi',function () {
-        it('should return response 200', async () =>{
-          const response = await instance.get('/pets?type=dog&limit=2&tags[]=sweet&tags[]=bestboi');
-
-          expect(response.status).to.equal(200);
-        })
-        it('should return one dog', async () =>{
+    describe('GET /pets?type=dog&limit=2&tags[]=sweet&tags[]=bestboi', function () {
+        it('should return response 200', async () => {
             const response = await instance.get('/pets?type=dog&limit=2&tags[]=sweet&tags[]=bestboi');
-            
+
+            expect(response.status).to.equal(200);
+        })
+        it('should return a maximum of one dog with both bestboi and sweet tags', async () => {
+            const response = await instance.get('/pets?type=dog&limit=2&tags[]=sweet&tags[]=bestboi');
+
             expect(response.data).to.be.an('array');
             expect(response.data[0].type).to.equal("dog");
-            expect(response.data.length).to.equal(1);
-          })
+            expect(response.data.length).to.lessThanOrEqual(1);
+            expect(response.data[0].tags).to.be.includes('sweet').and.to.include('bestboi');
+        })
     })
 
     describe('GET /pets/0', function () {
-        it('should return 404.', async () => {
-            const response = await instance.get('/pets/0');
-
-            expect(response.status).to.equal(404);
-            expect(response.data.message).to.equal('not found');
-
-        });
+            it('should return 404 when pet with id 0 doesnt exist', async () => {
+                const response = await instance.get('/pets/0');
+    
+                expect(response.status).to.equal(404);
+                expect(response.data.message).to.equal('not found');
+    
+            });
     });
 
     describe('GET /pets/1', function () {
@@ -101,7 +112,7 @@ describe('Pets controller', function () {
             expect(response.status).to.equal(204);
         });
 
-        it('should return pet deleted string', async () => {
+        it('should not have a response body', async () => {
             const response = await instance.delete('/pets/1');
 
             expect(response.data).to.equal("");
@@ -122,8 +133,12 @@ describe('Pets controller', function () {
         });
 
         it('should return the pet that was created', async () => {
-            const response = await instance.post('/pets', dog);
-
+            const response = await instance.post('/pets', dog); 
+            console.log(response.data)
+            expect(response.data).to.have.property('id')
+            expect(response.data).to.have.property('name')
+            expect(response.data).to.have.property('type')
+            expect(response.data).to.have.property('tags')
             expect(response.status).to.equal(200);
         });
     });
