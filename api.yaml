@@ -515,7 +515,7 @@ paths:
           application/json:
             schema:
               properties:
-                titile:
+                title:
                   description: The title of the movie or tv show
                   type: string
                   example: Titanic
@@ -628,7 +628,27 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Video'
+              properties:
+                title:
+                  type: string
+                  description: Title of the video
+                  example: The Matrix
+                category:
+                  type: string
+                  description: The category / genre of the video or tv show
+                  example: Actoin
+                type:
+                  type: string
+                  enum:
+                    - TV Show
+                    - Movie
+                  example: Movie
+              required: 
+                - id
+                - title
+                - category
+                - type
+              additionalProperties: false
       parameters:
         - in: path
           name: id
