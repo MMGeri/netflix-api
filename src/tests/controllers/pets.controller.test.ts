@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import axios from 'axios';
-import '../../app'; //ezzel indítjuk el az appot tesztelésnél
+import '../../app'; 
 
 describe('Pets controller', function () {
     const instance = axios.create({
@@ -23,7 +23,6 @@ describe('Pets controller', function () {
     describe('GET /pets?type=dog&limit=2', function () {
         it('should return a maximum of two dogs', async () => {
             const response = await instance.get('/pets?type=dog&limit=2');
-            console.log(response.data);
             expect(response.data).to.be.an('array');
             expect(response.data.length).to.be.lessThanOrEqual(2);
 
@@ -134,7 +133,6 @@ describe('Pets controller', function () {
 
         it('should return the pet that was created', async () => {
             const response = await instance.post('/pets', dog); 
-            console.log(response.data)
             expect(response.data).to.have.property('id')
             expect(response.data).to.have.property('name')
             expect(response.data).to.have.property('type')
