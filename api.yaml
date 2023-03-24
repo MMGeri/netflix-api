@@ -737,6 +737,11 @@ components:
           type: string
           description: The password of  the user
           example: password1234
+      required:
+        - id
+        - username
+        - password
+      additionalProperties: false
           
     Video:
       description: A video object
