@@ -456,7 +456,7 @@ paths:
       description: |
         Returns videos or tv shows by search with title
       operationId: getVideos
-      x-eov-operation-handler: api/controllers/videos.controller
+      x-eov-operation-handler: api/controllers/video.controller
       tags:
         - Videos
       parameters:
@@ -508,7 +508,7 @@ paths:
       description: |
         Create new video data
       operationId: createVideo
-      x-eov-operation-handler: api/controllers/videos.controller
+      x-eov-operation-handler: api/controllers/video.controller
       tags:
         - Videos
       requestBody:
@@ -622,7 +622,7 @@ paths:
       description: |
           Change video data
       operationId: changeVideo
-      x-eov-operation-handler: api/controllers/videos.controller
+      x-eov-operation-handler: api/controllers/video.controller
       tags:
         - Videos
       requestBody:
@@ -757,7 +757,7 @@ paths:
       description: |
           Delete video data
       operationId: deleteVideo
-      x-eov-operation-handler: api/controllers/videos.controller
+      x-eov-operation-handler: api/controllers/video.controller
       tags:
         - Videos
       parameters:
@@ -821,7 +821,7 @@ paths:
       description: |
         Returns videos
       operationId: searchVideos
-      x-eov-operation-handler: api/controllers/videos.controller
+      x-eov-operation-handler: api/controllers/video.controller
       tags:
         - Videos
       parameters:
