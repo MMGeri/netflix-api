@@ -42,6 +42,7 @@ paths:
           content:
             application/json:
               schema:
+                $ref: '#/components/schemas/User'
                 properties:
                   id:
                     type: string
@@ -141,6 +142,7 @@ paths:
                   session-id:
                     type: string
                     description: the session id
+                    example: sessionid1234
                 additionalProperties: false
                 required:
                   - session-id
@@ -552,7 +554,7 @@ paths:
                     description: Id of the video
                     type: string
                     example: video124
-                  titile:
+                  title:
                     description: The title of the movie or tv show
                     type: string
                     example: Titanic
@@ -570,7 +572,7 @@ paths:
                 additionalProperties: false
                 required:
                   - id
-                  - titile
+                  - title
                   - category
                   - type
         '400':
@@ -931,5 +933,4 @@ components:
           description: The message of the response
           example: Internal server error
       additionalProperties: false
-      
       
