@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import videoService from '../../src/api/services/video-repository'
-import { Video } from '../../src/api/services/video-repository';
+import videoService from '../../src/services/video-repository'
+import { Video } from '../../src/services/video-repository';
 import sinon from 'sinon';
 import '../../app';
 

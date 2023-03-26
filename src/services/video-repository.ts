@@ -1,4 +1,4 @@
-import { validateVideoData } from "../../utils/validateData";
+import { validateVideoData } from "../utils/validateData";
 
 type VideoType = "Movie" | "TV Show";
 

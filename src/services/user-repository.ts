@@ -1,5 +1,5 @@
-import { createStringId } from "../../utils/createId";
-import { validateUserData } from "../../utils/validateData";
+import { createStringId } from "../utils/createId";
+import { validateUserData } from "../utils/validateData";
 
 interface User {
   id?: string;

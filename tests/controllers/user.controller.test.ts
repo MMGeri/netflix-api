@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import userService from '../../src/api/services/user-repository'
-import { User } from '../../src/api/services/user-repository';
+import userService from '../../src/services/user-repository'
+import { User } from '../../src/services/user-repository';
 import sinon from 'sinon';
 import '../../app';
 

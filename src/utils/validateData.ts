@@ -1,5 +1,5 @@
-import { Video } from "../api/services/video-repository";
-import { User } from "../api/services/user-repository";
+import { Video } from "../services/video-repository";
+import { User } from "../services/user-repository";
 
 function validateUserData(newUser: User): boolean {
     throw new Error("Function not implemented.");
