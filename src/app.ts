@@ -6,7 +6,8 @@ import * as OpenApiValidator from 'express-openapi-validator';
 
 const port = 3000;
 const app: Application = express();
-const apiSpec = path.join(__dirname, '/api/swagger/api.yaml');
+const apiSpec = path.join(__dirname, '../api/api.yaml');
+globalThis.sessions = new Map();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.text());
@@ -18,17 +19,16 @@ app.use('/spec', express.static(apiSpec));
 app.use(
   OpenApiValidator.middleware({
     apiSpec,
-    //https://github.com/cdimascio/express-openapi-validator/wiki/Documentation#example-express-api-server-with-operationhandlers
     operationHandlers: path.join(__dirname), 
+    validateRequests: true,
+    validateResponses: true,
   }),
 );
 
-// 4. Add an error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  // format errors
   res.status(err.status || 500).json({
+    code: err.status,
     message: err.message,
-    errors: err.errors,
   });
 });
 
