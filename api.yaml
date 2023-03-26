@@ -239,7 +239,7 @@ paths:
                   - message
                 additionalProperties: false
         '401':
-          description: Bad request
+          description: Unauthorized
           content:
             application/json:
               schema:
