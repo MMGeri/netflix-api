@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import axios from 'axios';
-import { NewUser, User } from '../../src/services/users-service';
+import { NewUser } from '../../src/services/users-service';
 import sinon from 'sinon';
+import { isError, isUser } from '../../src/utils/type-checker';
 
 
 describe('users resource', function () {
@@ -17,6 +18,7 @@ describe('users resource', function () {
             it('should return response with 201 Created', async () => {
                 const user: NewUser = { email: "example@gmail.com", password: "password123" };
                 const response = await instance.post('/users', user);
+                console.log(response.data)
                 expect(response.status).to.equal(201);
                 expect(isUser(response.data)).to.be.true;
             })
@@ -66,7 +68,7 @@ describe('users resource', function () {
         })
         describe('password is correct', function () {
             it('should return response with 200 OK', async () => {
-                const password = "password123";
+                const password = "password";
                 const response = await instance.post('/users/1/login', { password });
                 expect(response.status).to.equal(200);
                 expect(response.data['session-id']).to.be.a('string');
@@ -85,7 +87,7 @@ describe('users resource', function () {
     describe('GET /users/1/logout', function () {
         describe('provided valid session id', function () {
             it('should return response with 204 No content', async () => {
-                //TODO: hogyan lepjek ki ha elotte be kell lépnem? hogyan mockoljak sessions-be letezo sessiont?
+                //TODO: how can i mock a valid session id and log out?
             })
         })
         describe('incorrect session id', function () {
@@ -134,14 +136,4 @@ describe('users resource', function () {
     })
 });
 
-function isUser(obj: any): obj is User {
-    if (obj.id && obj.email && obj.password)
-        return true
-    return false;
-}
 
-function isError(obj: any): obj is Error {
-    if (obj.code && obj.message)
-        return true
-    return false;
-}

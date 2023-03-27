@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import userService from '../../src/services/users-service'
-import { User } from '../../src/services/users-service';
 import { Video } from '../../src/services/video-service';
+import { isUser } from '../../src/utils/type-checker';
 
 
 
-describe('User repository', function () {
+describe('User service', function () {
     describe('findUserById()', function () {
         it('should return one user with id 1', async () => {
             const user = await userService.findUserById(1);
@@ -23,15 +23,10 @@ describe('User repository', function () {
                 const user = {email:'joska@gmail.com', password:'password'}
                 const result = await userService.createUser(user);
 
-                expect(result).to.be.true;
-            })
-        })
-        describe('user exists', function () {
-            it('should return false', async () => {
-                const user = {email:'example@gmail.com', password:'password'}
-                const result = await userService.createUser(user);
-
-                expect(result).to.be.false;
+                expect(isUser(result)).to.be.true;
+                expect(result?.email).to.equal('joska@gmail.com');
+                expect(result?.password).to.equal('password');
+                expect(result?.id).to.exist;
             })
         })
     });
@@ -44,7 +39,7 @@ describe('User repository', function () {
         })
         describe('user exists', function (){
             it('should return true', async () => {
-                const result = await userService.deleteUser(1);
+                const result = await userService.deleteUser(2);
                 expect(result).to.be.true;
             });
         })
@@ -59,7 +54,7 @@ describe('User repository', function () {
         })
         describe('user exists', function (){
             it('should return a user', async () => {
-                const user = {id:1, email:'example@gmail.com', password:'password'}
+                const user = {email:'example@gmail.com', password:'password'}
                 const result = await userService.updateUser(1,user);
                 expect(isUser(result)).to.be.true;
             });
@@ -94,11 +89,5 @@ function isVideo(obj: any): obj is Video {
         return true;
     }
     return false
-}
-
-function isUser(obj: any): obj is User {
-    if (obj.id && obj.email && obj.password)
-        return true
-    return false;
 }
 

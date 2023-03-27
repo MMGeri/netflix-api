@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 function isUserLoggedIn( sessionId:string, userId?: number) {
-    const session = globalThis.sessions.get(sessionId);
+    const session = global.sessions.get(sessionId);
     if (!session || (session.user.id != userId && userId)) {
       return false;
     }

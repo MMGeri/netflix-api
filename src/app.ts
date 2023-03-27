@@ -6,14 +6,14 @@ import * as OpenApiValidator from 'express-openapi-validator';
 
 const port = 3000;
 const app: Application = express();
-const apiSpec = path.join(__dirname, '../api/api.yaml');
-globalThis.sessions = new Map();
+const apiSpec = path.join(__dirname, 'api/api.yaml');
+global.sessions = new Map();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.text());
 app.use(express.json());
 
-app.use(logger('combined'));
+// app.use(logger('combined')); zavar
 app.use('/spec', express.static(apiSpec));
 
 app.use(

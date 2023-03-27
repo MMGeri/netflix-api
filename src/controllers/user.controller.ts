@@ -44,7 +44,7 @@ async function queueVideo(req: Request, res: Response) {
 async function createUser(req: Request, res: Response) {
   const user: NewUser = req.body;
   const result = await users.createUser(user);
-  res.json(result);
+  res.status(201).json(result);
 }
 
 async function userLogin(req: Request, res: Response) {
@@ -60,7 +60,7 @@ async function userLogin(req: Request, res: Response) {
     res.status(401).json({ code: 404, message: 'Wrong password' });
     return;
   }
-  globalThis.sessions.set(sessionId, { user });
+  global.sessions.set(sessionId, { user });
   res.json({ 'session-id': sessionId });
 }
 
@@ -75,7 +75,7 @@ async function userLogout(req: Request, res: Response) {
     res.status(401).json({code:401, message: 'Not logged in' });
     return;
   };
-  globalThis.sessions.delete(sessionId);
+  global.sessions.delete(sessionId);
   res.status(204)
 }
 
