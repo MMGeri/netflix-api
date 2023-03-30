@@ -18,7 +18,6 @@ describe('users resource', function () {
             it('should return response with 201 Created', async () => {
                 const user: NewUser = { email: "example@gmail.com", password: "password123" };
                 const response = await instance.post('/users', user);
-                console.log(response.data)
                 expect(response.status).to.equal(201);
                 expect(isUser(response.data)).to.be.true;
             })
