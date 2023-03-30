@@ -1,3 +1,4 @@
 /*TODO:
-    - Test the video controller
+    - Test the video endpoints
 */
+

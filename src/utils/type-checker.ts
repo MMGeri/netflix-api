@@ -1,5 +1,5 @@
 import { User } from "../services/users-service";
-import { Video } from "../services/video-service";
+import { Video } from "../services/videos-service";
 
 function isVideo(obj: any): obj is Video {
     if (obj?.id && obj?.category && obj?.type && obj?.title)

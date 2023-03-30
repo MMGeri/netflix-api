@@ -1,5 +1,5 @@
-import { Video } from "./video-service";
-import videoService from "./video-service";
+import { Video } from "./videos-service";
+import videoService from "./videos-service";
 
 type User = {
   id: number;
@@ -24,25 +24,12 @@ let usersData: User[] = [
   }
 ];
 
-let queueData = [
-  {
-    userId: 1,
-    videoId: 1
-  },
-  {
-    userId: 1,
-    videoId: 2
-  },
-]
-
 let lastId = 2;
 function getNextId(): number {
   return ++lastId;
 }
 
 interface UserRepositoryService {
-  queueVideo(userId: number,videoId: number): Promise<Video[] | []>;
-  getQueue(userId: number): Promise<Video[] | []>;
   findUserById: (userId: number) => Promise<User | undefined>;
   createUser: (user: NewUser) => Promise<User>;
   deleteUser: (userId: number) => Promise<boolean>;
@@ -50,20 +37,6 @@ interface UserRepositoryService {
 }
 
 let userRepositoryService: UserRepositoryService = {
-
-  queueVideo: async function (userId:number,videoId: number) {
-    queueData.push({ userId, videoId });
-    const queuedVideos = await this.getQueue(userId);
-    return queuedVideos;
-  },
-  
-  getQueue: async function (id: number) {
-    const user = await this.findUserById(id);
-    if (!user) return [];
-    const queue = queueData.filter(queue => queue.userId === user.id);
-    const videos = await Promise.all(queue.map(async queue => await videoService.findVideoById(queue.videoId)));
-    return videos as Video[]; 
-  },
   findUserById: async function (id: number): Promise<User | undefined> {
     const user = usersData.filter(user => user.id === id).at(0);
     return user;

@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import users, { NewUser } from "../services/users-service";
-import videos from "../services/video-service";
-import { createSessionId } from "../utils/createId";
-import { loginStateChecker, userResourceChecker } from "../utils/middleware";
+import sessions from "../services/sessions-service";
+import videos from "../services/videos-service";
+import queues from "../services/queues-service";
+import { sessionStateChecker, userResourceChecker } from "../utils/middleware";
 
 async function createUser(req: Request, res: Response) {
   const user: NewUser = req.body;
@@ -19,17 +20,16 @@ async function userLogin(req: Request, res: Response) {
   }
   const password = req.body.password;
   if (user.password !== password) {
-    res.status(401).json({ code: 404, message: 'Wrong password' });
+    res.status(401).json({ code: 401, message: 'Wrong password' });
     return;
   }
-  const sessionId = createSessionId(32);
-  global.sessions.set(sessionId, { user });
+  const sessionId = await sessions.createSession({user});
   res.json({ 'session-id': sessionId });
 }
 
 async function getQueue(req: Request, res: Response) {
   const userId = Number(req.params.id);
-  const queue = await users.getQueue(userId);
+  const queue = await queues.getQueueByUserId(userId);
   res.json(queue);
 }
 
@@ -41,20 +41,20 @@ async function queueVideo(req: Request, res: Response) {
     return;
   }
   const userId = Number(req.params.id);
-  const queue = await users.queueVideo(userId, videoId);
+  const queue = await queues.queueVideo(userId, videoId);
   res.json(queue);
 }
 
 async function userLogout(req: Request, res: Response) {
-  const sessionId = String(req.headers['X-Session-ID']);
-  global.sessions.delete(sessionId);
-  res.status(204)
+  const sessionId = String(req.headers['x-session-id']);
+  await sessions.deleteSession(sessionId);
+  res.status(204).send();
 }
 
 module.exports = {
-  getQueue:[userResourceChecker,loginStateChecker,getQueue],
-  queueVideo:[userResourceChecker,loginStateChecker,queueVideo],
-  userLogout:[userResourceChecker,loginStateChecker,userLogout],
+  getQueue:[userResourceChecker,sessionStateChecker,getQueue],
+  queueVideo:[userResourceChecker,sessionStateChecker,queueVideo],
+  userLogout:[userResourceChecker,sessionStateChecker, userLogout],
   userLogin:[userResourceChecker,userLogin],
   createUser
 }

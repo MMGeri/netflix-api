@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import videos from '../services/video-service';
+import videos from '../services/videos-service';
 import { apiKeyValidator } from '../utils/middleware';
 
   
