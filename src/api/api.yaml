@@ -13,8 +13,8 @@ paths:
     post:
       description: |
         creates a user
-      operationId: userCreate
-      x-eov-operation-handler: api/controllers/user.controller
+      operationId: createUser
+      x-eov-operation-handler: controllers/user.controller
       tags:
         - Users
       requestBody:
@@ -93,7 +93,7 @@ paths:
       description: |
         logs in a user and returns the user object
       operationId: userLogin
-      x-eov-operation-handler: api/controllers/user.controller
+      x-eov-operation-handler: controllers/user.controller
       tags:
         - Users
       parameters:
@@ -201,7 +201,7 @@ paths:
       description: |
         log out of user
       operationId: userLogout
-      x-eov-operation-handler: api/controllers/user.controller
+      x-eov-operation-handler: controllers/user.controller
       tags:
         - Users
       parameters:
@@ -287,7 +287,7 @@ paths:
       description: |
         Update the users queue with the video specified by its id
       operationId: queueVideo
-      x-eov-operation-handler: api/controllers/user.controller
+      x-eov-operation-handler: controllers/user.controller
       tags:
         - Users
       requestBody:
@@ -374,7 +374,7 @@ paths:
       description: |
         Get your queue
       operationId: getQueue
-      x-eov-operation-handler: api/controllers/user.controller
+      x-eov-operation-handler: controllers/user.controller
       tags:
         - Users
       parameters:
@@ -458,7 +458,7 @@ paths:
       description: |
         Returns videos or tv shows by search with title
       operationId: getVideos
-      x-eov-operation-handler: api/controllers/video.controller
+      x-eov-operation-handler: controllers/video.controller
       tags:
         - Videos
       parameters:
@@ -513,7 +513,7 @@ paths:
       description: |
         Create new video data
       operationId: createVideo
-      x-eov-operation-handler: api/controllers/video.controller
+      x-eov-operation-handler: controllers/video.controller
       tags:
         - Videos
       requestBody:
@@ -628,7 +628,7 @@ paths:
       description: |
           Change video data
       operationId: changeVideo
-      x-eov-operation-handler: api/controllers/video.controller
+      x-eov-operation-handler: controllers/video.controller
       tags:
         - Videos
       requestBody:
@@ -766,7 +766,7 @@ paths:
       description: |
           Delete video data
       operationId: deleteVideo
-      x-eov-operation-handler: api/controllers/video.controller
+      x-eov-operation-handler: controllers/video.controller
       tags:
         - Videos
       parameters:
@@ -833,7 +833,7 @@ paths:
       description: |
         Returns videos
       operationId: searchVideos
-      x-eov-operation-handler: api/controllers/video.controller
+      x-eov-operation-handler: controllers/video.controller
       tags:
         - Videos
       parameters:
