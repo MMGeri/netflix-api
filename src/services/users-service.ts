@@ -2,7 +2,7 @@ import { Video } from "./videos-service";
 import videoService from "./videos-service";
 
 type User = {
-  id: number;
+  id: string;
   email: string;
   password: string;
 }
@@ -12,83 +12,80 @@ type NewUser = Omit<User, "id">
 
 let queueData = [
   {
-    userId: 1,
-    videoId: 1
+    userId: '1',
+    videoId: '1'
   },
   {
-    userId: 1,
-    videoId: 2
+    userId: '1',
+    videoId: '2'
   },
 ]
 
 let usersData: User[] = [
   {
-    id: 1,
+    id: '1',
     email: 'example@example.com',
     password: 'password'
   },
   {
-    id: 2,
+    id: '2',
     email: 'example2@example.com',
     password: 'password2'
   }
 ];
 
-let lastId = 2;
-function getNextId(): number {
-  return ++lastId;
-}
+
 
 interface UserRepositoryService {
-  findUserById: (userId: number) => Promise<User | undefined>;
+  findUserById: (userId: string) => Promise<User | undefined>;
   createUser: (user: NewUser) => Promise<User>;
-  deleteUser: (userId: number) => Promise<boolean>;
-  updateUser: (userId: number, user: NewUser) => Promise<User | undefined>;
+  deleteUser: (userId: string) => Promise<boolean>;
+  updateUser: (userId: string, user: NewUser) => Promise<User | undefined>;
 
-  getQueueByUserId: (userId: number) => Promise<Video[] | []>;
-  removeVideoFromQueue: (userId: number, videoId: number) => Promise<Video[] | []>;
-  queueVideo: (userId: number, videoId: number) => Promise<Video[] | []>;
+  getQueueByUserId: (userId: string) => Promise<Video[] | []>;
+  removeVideoFromQueue: (userId: string, videoId: string) => Promise<Video[] | []>;
+  queueVideo: (userId: string, videoId: string) => Promise<Video[] | []>;
 }
 
 let userRepositoryService: UserRepositoryService = {
-  findUserById: async function (id: number): Promise<User | undefined> {
+  findUserById: async function (id: string): Promise<User | undefined> {
     const user = usersData.filter(user => user.id === id).at(0);
     return user;
   },
 
   createUser: async function (newUser: NewUser) {
-    const newId = getNextId();
+    const newId = "asd"; //FIXME:
     const user = { id: newId, ...newUser };
     usersData.push(user)
     return user;
   },
 
-  deleteUser: async function (id: number) {
+  deleteUser: async function (id: string) {
     const indexOfUser = usersData.findIndex(user => user.id == id)
     if (indexOfUser <= -1) return false;
     usersData.splice(indexOfUser, 1);
     return true;
   },
 
-  updateUser: async function (userId: number, userUpdate: NewUser) {
+  updateUser: async function (userId: string, userUpdate: NewUser) {
     const indexOfUser = usersData.findIndex(user => user.id == userId)
     if (indexOfUser != -1) {
       usersData[indexOfUser] = { ...usersData[indexOfUser], ...userUpdate };
       return usersData[indexOfUser]
     }
   },
-  removeVideoFromQueue: async function (userId: number, videoId: number) {
+  removeVideoFromQueue: async function (userId: string, videoId: string) {
     queueData = queueData.filter(queue => queue.userId !== userId && queue.videoId !== videoId);
     const queuedVideos = await this.getQueueByUserId(userId);
     return queuedVideos;
   },
-  queueVideo: async function (userId: number, videoId: number) {
+  queueVideo: async function (userId: string, videoId: string) {
     queueData.push({ userId, videoId });
     const queuedVideos = await this.getQueueByUserId(userId);
     return queuedVideos;
   },
 
-  getQueueByUserId: async function (id: number) {
+  getQueueByUserId: async function (id: string) {
     const user = await this.findUserById(id);
     if (!user) return [];
     const queue = queueData.filter(queue => queue.userId === user.id);

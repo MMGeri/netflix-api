@@ -10,7 +10,7 @@ async function createVideo(req: Request, res: Response) {
 }
 
 async function deleteVideo(req: Request, res: Response) {
-  const videoId = Number(req.params.id);
+  const videoId = String(req.params.id);
   const result = await videos.deleteVideo(videoId);
   if (!result) {
     res.status(404).json({code:404, message: 'Video not found' });
@@ -31,7 +31,7 @@ async function searchVideos(req: Request, res: Response) {
 }
 
 async function changeVideo(req: Request, res: Response) {
-  const videoId = Number(req.params.id);
+  const videoId = String(req.params.id);
   const video = req.body;
   const result = await videos.updateVideo(videoId, video);  
   if (!result) {

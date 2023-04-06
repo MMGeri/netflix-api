@@ -11,7 +11,7 @@ async function createUser(req: Request, res: Response) {
 }
 
 async function userLogin(req: Request, res: Response) {
-  const userId = Number(req.params.id);
+  const userId = String(req.params.id);
   const user = await users.findUserById(userId);
   if (!user) {
     res.status(404).json({ code: 404, message: 'User not found' });
@@ -27,19 +27,19 @@ async function userLogin(req: Request, res: Response) {
 }
 
 async function getQueue(req: Request, res: Response) {
-  const userId = Number(req.params.id);
+  const userId = String(req.params.id);
   const queue = await users.getQueueByUserId(userId);
   res.json(queue);
 }
 
 async function queueVideo(req: Request, res: Response) {
-  const videoId = Number(req.body.videoId);
+  const videoId = String(req.body.videoId);
   const video = await videos.findVideoById(videoId);
   if (!video) {
     res.status(404).json({ code: 404, message: 'Video not found' });
     return;
   }
-  const userId = Number(req.params.id);
+  const userId = String(req.params.id);
   const queue = await users.queueVideo(userId, videoId);
   res.json(queue);
 }

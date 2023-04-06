@@ -14,7 +14,7 @@ function apiKeyValidator(req: Request, res: Response, next: NextFunction) {
 }
 
 async function sessionStateChecker(req: Request, res: Response, next: NextFunction) {
-  const userId = Number(req.params.id);
+  const userId = String(req.params.id);
   const sessionId = String(req.headers['x-session-id']);
   const session = await sessions.findSessionById(sessionId);
   if (!session || (session.user.id != userId && userId)) {
@@ -25,7 +25,7 @@ async function sessionStateChecker(req: Request, res: Response, next: NextFuncti
 }
 
 async function userResourceChecker(req: Request, res: Response, next: NextFunction) {
-  const userId = Number(req.params.id);
+  const userId = String(req.params.id);
   const user = await users.findUserById(userId);
   if (!user) {
     res.status(404).json({ code: 404, message: 'User not found' });
