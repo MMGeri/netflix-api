@@ -1,11 +1,13 @@
 {
-  "name": "express-openapi-validator-typescript-base",
+  "name": "netflix-api",
   "version": "1.0.0",
   "scripts": {
     "start": "npm run build && node --trace-warnings ./dist/src/app.js",
     "build": "tsc && ncp ./src/api ./dist/src/api --stopOnErr",
     "test": "mocha --exit -r ./node_modules/ts-node/register 'tests/**/*.ts'",
-    "test-win": "mocha --exit -r ./node_modules/ts-node/register 'tests/**/*.ts'"
+    "test-win": "mocha --exit -r ./node_modules/ts-node/register 'tests/**/*.ts'",
+    "docker-build": "docker build -t netflix-api:latest .",
+    "docker-run": "docker run -p 10030:10020 --network netflix --name netflix-api -d netflix-api:latest"
   },
   "dependencies": {
     "express": "^4.18.2",
