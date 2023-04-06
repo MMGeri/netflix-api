@@ -6,7 +6,6 @@ import { isError, isUser } from '../../src/utils/type-checker';
 import users, {  User } from '../../src/services/users-service';
 import sessions from '../../src/services/sessions-service';
 import videos, { Video } from '../../src/services/videos-service';
-import queues from '../../src/services/queues-service';
 
 const userId = 1;
 const password = "password";
@@ -158,7 +157,7 @@ describe('users resource', function () {
         })
     })
     describe('PUT /users/1/queue', function () {
-        describe('provided a valid video in request body', function () {
+        describe('provided a valid video id in request body', function () {
             describe('provided valid session id', function () {
                 it('should return the updated queue', async () => {
                     sinon.stub(users, "findUserById")
@@ -237,7 +236,7 @@ describe('users resource', function () {
                 sinon.stub(sessions, "findSessionById")
                     .withArgs(sessionId)
                     .returns(new Promise(res => res({ user })));
-                sinon.stub(queues, "getQueueByUserId")
+                sinon.stub(users, "getQueueByUserId")
                     .withArgs(1)
                     .returns(new Promise(res => res([video])));
 

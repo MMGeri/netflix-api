@@ -10,16 +10,13 @@ const app: Application = express();
 const apiSpec = path.join(__dirname, 'api/api.yaml');
 const openApiValidator = OpenApiValidator.middleware({
   apiSpec,
-  operationHandlers: path.join(__dirname),
-  validateResponses: true,
-  validateRequests: true
-   //TODO: https://stackoverflow.com/questions/64731421/how-to-add-custom-middleware-to-express-openapi-validator-using-swagger-3
+  operationHandlers: path.join(__dirname)
 })
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.text());
 app.use(express.json());
-// app.use(logger('combined'));
+app.use(logger('combined'));
 app.use('/spec', express.static(apiSpec));
 app.use(openApiValidator);
 app.use(errorHandler);

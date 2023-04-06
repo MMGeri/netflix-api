@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import users, { NewUser } from "../services/users-service";
 import sessions from "../services/sessions-service";
 import videos from "../services/videos-service";
-import queues from "../services/queues-service";
 import { sessionStateChecker, userResourceChecker } from "../utils/middleware";
 
 async function createUser(req: Request, res: Response) {
@@ -29,7 +28,7 @@ async function userLogin(req: Request, res: Response) {
 
 async function getQueue(req: Request, res: Response) {
   const userId = Number(req.params.id);
-  const queue = await queues.getQueueByUserId(userId);
+  const queue = await users.getQueueByUserId(userId);
   res.json(queue);
 }
 
@@ -41,7 +40,7 @@ async function queueVideo(req: Request, res: Response) {
     return;
   }
   const userId = Number(req.params.id);
-  const queue = await queues.queueVideo(userId, videoId);
+  const queue = await users.queueVideo(userId, videoId);
   res.json(queue);
 }
 

@@ -10,6 +10,16 @@ type User = {
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 type NewUser = Omit<User, "id">
 
+let queueData = [
+  {
+    userId: 1,
+    videoId: 1
+  },
+  {
+    userId: 1,
+    videoId: 2
+  },
+]
 
 let usersData: User[] = [
   {
@@ -33,7 +43,11 @@ interface UserRepositoryService {
   findUserById: (userId: number) => Promise<User | undefined>;
   createUser: (user: NewUser) => Promise<User>;
   deleteUser: (userId: number) => Promise<boolean>;
-  updateUser: (userId:number,user: NewUser) => Promise<User | undefined>;
+  updateUser: (userId: number, user: NewUser) => Promise<User | undefined>;
+
+  getQueueByUserId: (userId: number) => Promise<Video[] | []>;
+  removeVideoFromQueue: (userId: number, videoId: number) => Promise<Video[] | []>;
+  queueVideo: (userId: number, videoId: number) => Promise<Video[] | []>;
 }
 
 let userRepositoryService: UserRepositoryService = {
@@ -56,12 +70,30 @@ let userRepositoryService: UserRepositoryService = {
     return true;
   },
 
-  updateUser: async function (userId:number,userUpdate: NewUser){
+  updateUser: async function (userId: number, userUpdate: NewUser) {
     const indexOfUser = usersData.findIndex(user => user.id == userId)
     if (indexOfUser != -1) {
       usersData[indexOfUser] = { ...usersData[indexOfUser], ...userUpdate };
       return usersData[indexOfUser]
     }
+  },
+  removeVideoFromQueue: async function (userId: number, videoId: number) {
+    queueData = queueData.filter(queue => queue.userId !== userId && queue.videoId !== videoId);
+    const queuedVideos = await this.getQueueByUserId(userId);
+    return queuedVideos;
+  },
+  queueVideo: async function (userId: number, videoId: number) {
+    queueData.push({ userId, videoId });
+    const queuedVideos = await this.getQueueByUserId(userId);
+    return queuedVideos;
+  },
+
+  getQueueByUserId: async function (id: number) {
+    const user = await this.findUserById(id);
+    if (!user) return [];
+    const queue = queueData.filter(queue => queue.userId === user.id);
+    const videos = await Promise.all(queue.map(async queue => await videoService.findVideoById(queue.videoId)));
+    return videos as Video[];
   }
 }
 

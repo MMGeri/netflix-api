@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import userService from '../../src/services/users-service'
-import queueService from '../../src/services/queues-service';
 import { Video } from '../../src/services/videos-service';
 import { isUser } from '../../src/utils/type-checker';
 
@@ -61,22 +60,22 @@ describe('User service', function () {
     });
     describe('getQueue()', function () {
         it('should return an empty array', async () => {
-            const result = await queueService.getQueueByUserId(2);
+            const result = await userService.getQueueByUserId(2);
             expect(result).to.be.an('array');
             expect(result.length).to.equal(0);
         });
-        it('should return an array with 3 videos', async () => {
-            const result = await queueService.getQueueByUserId(1);
+        it('should return an array with 2 videos', async () => {
+            const result = await userService.getQueueByUserId(1);
             expect(result).to.be.an('array');
-            expect(result.length).to.equal(4);
+            expect(result.length).to.equal(2);
             expect(isVideo(result[0])).to.be.true;
         });
     });
     describe('queueVideo()', function () {
         it('should return an array with 3 videos', async () => {
-            const result = await queueService.queueVideo(1,1);
+            const result = await userService.queueVideo(1,1);
             expect(result).to.be.an('array');
-            expect(result.length).to.equal(5);
+            expect(result.length).to.equal(3);
             expect(isVideo(result[0])).to.be.true;
         });
     });
