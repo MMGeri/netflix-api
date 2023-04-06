@@ -1,3 +1,8 @@
+require('dotenv').config();
+import axios from "axios";
+
+const apiUrl = `${process.env.DB_API_URL}/videos`;
+
 type VideoType = "Movie" | "TV Show";
 
 interface Video {
@@ -10,27 +15,6 @@ interface Video {
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 type NewVideo = Omit<Video, "id">
 
-let videosData: Video[] = [
-  {
-    id: '1',
-    title: 'The Matrix',
-    category: 'Action',
-    type: 'Movie'
-  },
-  {
-    id: '2',
-    title: 'Titanic',
-    category: 'Romance',
-    type: 'Movie'
-  },
-  {
-    id: '3',
-    title: 'Breakig bad',
-    category: 'Thriller',
-    type: 'TV Show'
-  }
-];
-
 interface VideoRepositoryService {
   findVideoById: (id: string) => Promise<Video | undefined>;
   createVideo: (video: NewVideo) => Promise<boolean>;
@@ -42,33 +26,26 @@ interface VideoRepositoryService {
 
 let videoRepositoryService: VideoRepositoryService = {
   getVideos: async function (): Promise<Video[]> {
+    const videosData = await axios.get(apiUrl).then(response => response.data);
     return videosData;
   },
   searchVideos: async function (query: string): Promise<Video[]> {
-    const videos = videosData.filter(video => video.title.toLowerCase().includes(query.toLowerCase()));
+    const videos = await axios.get(`${apiUrl}?query={"title":{"$regex":"${query}"}}`).then(response => response.data);
     return videos;
   },
   findVideoById: async function (id: string): Promise<Video | undefined> {
-    const video = videosData.filter(video => video.id === id).at(0);
+    const video = await axios.get(`${apiUrl}/${id}`).then(response => response.data);
     return video;
   },
   createVideo: async function (newVideo: NewVideo) {
-    const newId = "asd" //FIXME:
-    videosData.push({ id: newId, ...newVideo })
+    await axios.post(apiUrl, newVideo);
     return true;
   },
   deleteVideo: async function (id: string): Promise<boolean> {
-    const indexOfVideo = videosData.findIndex(video => video.id == id)
-    if (indexOfVideo <= -1) return false;
-    videosData.splice(indexOfVideo, 1);
-    return true;
+    return await axios.delete(`${apiUrl}/${id}`);
   },
   updateVideo: async function (videoId:string,videoUpdate: NewVideo): Promise<Video | undefined> {
-    const indexOfVideo = videosData.findIndex(video => video.id == videoId)
-    if (indexOfVideo != -1) {
-      videosData[indexOfVideo] = { ...videosData[indexOfVideo], ...videoUpdate };
-      return videosData[indexOfVideo]
-    }
+    return await axios.put(`${apiUrl}/${videoId}`, videoUpdate).then(response => response.data);
   }
 }
 

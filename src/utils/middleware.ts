@@ -5,7 +5,7 @@ import users from "../services/users-service";
 const adminApiKey = '1234';
 
 function apiKeyValidator(req: Request, res: Response, next: NextFunction) {
-  const apiKey = String(req.headers['X-Admin-API-key']);
+  const apiKey = String(req.headers['x-admin-api-key']);
   if (apiKey !== adminApiKey) {
     res.status(401).json({ message: 'Provide a valid api key' });
     return;

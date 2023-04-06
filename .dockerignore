@@ -1,5 +1,8 @@
 .git
 .vscode
+.gitignore
+.dockerignore
 *Dockerfile*
 *docker-compose*
 node_modules
+tests

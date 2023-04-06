@@ -469,13 +469,11 @@ paths:
           schema:
             type: string
         - in: header
-          name: X-Session-ID
-          schema: 
+          name: X-Admin-API-key
+          schema:
             type: string
-            example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
-            pattern: ^[\w\d]{32}$
           required: true
-          description: the session id
+          description: An api key
       responses:
         '200':
           description: List of videos

@@ -1,6 +1,5 @@
 import express, { Application } from 'express';
 import path from 'path';
-import logger from 'morgan';
 import http from 'http';
 import * as OpenApiValidator from 'express-openapi-validator';
 import { errorHandler } from './utils/middleware';
@@ -16,7 +15,6 @@ const openApiValidator = OpenApiValidator.middleware({
 app.use(express.urlencoded({ extended: false }));
 app.use(express.text());
 app.use(express.json());
-app.use(logger('combined'));
 app.use('/spec', express.static(apiSpec));
 app.use(openApiValidator);
 app.use(errorHandler);
