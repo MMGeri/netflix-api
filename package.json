@@ -4,14 +4,13 @@
   "scripts": {
     "start": "node --trace-warnings ./dist/src/app.js",
     "build": "tsc && ncp ./src/api ./dist/src/api --stopOnErr",
-    "build-prod": "tsc --project tsconfig.prod.json && ncp ./src/api ./dist/src/api --stopOnErr",
     "test": "mocha --exit -r ./node_modules/ts-node/register 'tests/**/*.ts'",
     "test-win": "mocha --exit -r ./node_modules/ts-node/register 'tests/**/*.ts'",
     "dev": "nodemon --legacy-watch ./src/app.ts",
     "docker-build": "docker build -t netflix-api:latest .",
     "docker-build-dev": "docker image build --file Dockerfile.dev -t netflix-api:dev .",
     "docker-run": "docker run -d --publish 10030:10020 --network netflix --name netflix-api netflix-api:latest",
-    "docker-run-dev": "docker run -d --publish 10030:10020 --network netflix --name netflix-api-dev --rm --volume %cd%:/home/node/app netflix-api:dev"
+    "docker-run-dev": "docker run --rm -d --publish 10030:10020 --network netflix --name netflix-api-dev --volume %cd%:/home/node/app netflix-api:dev"
   },
   "dependencies": {
     "dotenv": "^16.0.3",

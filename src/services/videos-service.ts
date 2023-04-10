@@ -26,20 +26,16 @@ interface VideoRepositoryService {
 
 let videoRepositoryService: VideoRepositoryService = {
   getVideos: async function (): Promise<Video[]> {
-    const videosData = await axios.get(apiUrl).then(response => response.data);
-    return videosData;
+    return await axios.get(apiUrl).then(response => response.data);
   },
   searchVideos: async function (query: string): Promise<Video[]> {
-    const videos = await axios.get(`${apiUrl}?query={"title":{"$regex":"${query}"}}`).then(response => response.data);
-    return videos;
+    return await axios.get(`${apiUrl}?query={"title":{"$regex":"${query}"}}`).then(response => response.data);
   },
   findVideoById: async function (id: string): Promise<Video | undefined> {
-    const video = await axios.get(`${apiUrl}/${id}`).then(response => response.data);
-    return video;
+    return await axios.get(`${apiUrl}/${id}`).then(response => response.data);;
   },
   createVideo: async function (newVideo: NewVideo) {
-    await axios.post(apiUrl, newVideo);
-    return true;
+    return await axios.post(apiUrl, newVideo);
   },
   deleteVideo: async function (id: string): Promise<boolean> {
     return await axios.delete(`${apiUrl}/${id}`);
