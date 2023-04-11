@@ -10,10 +10,7 @@ api.interceptors.response.use(
   response => response,
   error => {
     if (error?.response?.status === 404) {
-      return Promise.reject({
-        code: 404,
-        message: "Session Not Found"
-      })
+      return Promise.resolve(undefined)
     }
     return Promise.reject({
       code: 500,
@@ -24,21 +21,22 @@ api.interceptors.response.use(
 
 
 type Session = {
+  id: string;
   user: User;
 }
 
 interface SessionRepositoryService {
-  findSessionById: (sessionId: string) => Promise<Session>;
-  createSession: (session: Session) => Promise<string>;
+  findSessionById: (sessionId: string) => Promise<Session | undefined>;
+  createSession: (user: User) => Promise<Session>;
   deleteSession: (sessionId: string) => Promise<void>;
 }
 
 let sessionRepositoryService: SessionRepositoryService = {
   findSessionById: async (sessionId: string) => {
-    return await api.get(`${apiUrl}/${sessionId}?populate=user`).then(response => response.data);
+    return await api.get(`${apiUrl}/${sessionId}?populate=user`).then(response => response?.data);
   },
-  createSession: async (session: Session) => {;
-    return await api.post(`${apiUrl}`,{user:session.user.id}).then(response => response.data.id);
+  createSession: async (user: User) => {;
+    return await api.post(`${apiUrl}`,{user}).then(response => response?.data);
   },
   deleteSession: async (sessionId: string) => {
     await api.delete(`${apiUrl}/${sessionId}`);

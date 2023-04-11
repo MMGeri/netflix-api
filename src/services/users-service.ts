@@ -10,10 +10,7 @@ api.interceptors.response.use(
   response => response,
   error => {
     if (error?.response?.status === 404) {
-      return Promise.reject({
-        code: 404,
-        message: "User Not Found"
-      })
+      return Promise.resolve(undefined)
     }
     return Promise.reject({
       code: 500,
@@ -32,10 +29,10 @@ type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 type NewUser = Omit<User, "id">
 
 interface UserRepositoryService {
-  findUserById: (userId: string) => Promise<User>;
-  createUser: (user: NewUser) => Promise<User>;
+  findUserById: (userId: string) => Promise<User | undefined>;
+  createUser: (user: NewUser) => Promise<User | undefined>;
   deleteUser: (userId: string) => Promise<void>;
-  updateUser: (userId: string, user: NewUser) => Promise<User>;
+  updateUser: (userId: string, user: NewUser) => Promise<User | undefined>;
 
   getQueueByUserId: (userId: string) => Promise<Video[] | []>;
   removeVideoFromQueue: (userId: string, videoId: string) => Promise<Video[] | []>;
@@ -44,11 +41,11 @@ interface UserRepositoryService {
 
 let userRepositoryService: UserRepositoryService = {
   findUserById: async function (id: string): Promise<User> {
-    return await api.get(`${apiUrl}/${id}`).then(response => response.data)
+    return await api.get(`${apiUrl}/${id}`).then(response => response?.data)
   },
 
   createUser: async function (newUser: NewUser) {
-    return await api.post(apiUrl, newUser).then(response => response.data)
+    return await api.post(apiUrl, newUser).then(response => response?.data)
   },
 
   deleteUser: async function (id: string) {
@@ -56,18 +53,18 @@ let userRepositoryService: UserRepositoryService = {
   },
 
   updateUser: async function (userId: string, userUpdate: NewUser) {
-    return await api.put(`${apiUrl}/${userId}`, userUpdate).then(response => response.data)
+    return await api.put(`${apiUrl}/${userId}`, userUpdate).then(response => response?.data)
   },
   
   removeVideoFromQueue: async function (userId: string, videoId: string) {
-    return await api.delete(`${apiUrl}/${userId}/queue/${videoId}`).then(response => response.data);
+    return await api.delete(`${apiUrl}/${userId}/queue/${videoId}`).then(response => response?.data);
   },
   queueVideo: async function (userId: string, videoId: string) {
-    return await api.put(`${apiUrl}/${userId}/queue/${videoId}`).then(response => response.data);
+    return await api.put(`${apiUrl}/${userId}/queue/${videoId}`).then(response => response?.data);
   },
 
   getQueueByUserId: async function (id: string) {
-    return await api.get(`${apiUrl}/${id}/queue`).then(response => response.data);
+    return await api.get(`${apiUrl}/${id}/queue`).then(response => response?.data);
   }
 }
 

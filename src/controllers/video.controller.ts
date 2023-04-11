@@ -56,6 +56,10 @@ async function changeVideo(req: Request, res: Response) {
     sendErrorResponse(error, req, res);
     return;
   }
+  if (!result) {
+    res.status(404).json({ code: 404, message: 'Video not found' });
+    return;
+  }
   res.json(result);
 }
 

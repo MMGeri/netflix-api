@@ -38,6 +38,10 @@ async function userResourceChecker(req: Request, res: Response, next: NextFuncti
     sendErrorResponse(error, req, res);
     return;
   }
+  if(!user) {
+    res.status(404).json({ code: 404, message: 'User not found' });
+    return;
+  }
   next();
 }
 

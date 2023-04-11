@@ -24,18 +24,22 @@ async function userLogin(req: Request, res: Response) {
     sendErrorResponse(error, req, res);
     return;
   }
+  if(!user) {
+    res.status(404).json({ code: 404, message: 'User not found' });
+    return;
+  }
   const password = req.body.password;
   if (user.password !== password) {
     res.status(401).json({ code: 401, message: 'Wrong password' });
     return;
   }
   try {
-    var sessionId = await sessions.createSession({ user });
+    var session = await sessions.createSession(user);
   } catch (error: any) {
     sendErrorResponse(error, req, res);
     return;
   }
-  res.json({ 'session-id': sessionId });
+  res.json({ 'session-id': session.id });
 }
 
 async function getQueue(req: Request, res: Response) {
