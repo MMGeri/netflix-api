@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 import axios from "axios";
 import { User } from "./users-service";
 
@@ -15,7 +15,6 @@ api.interceptors.response.use(
         message: "Session Not Found"
       })
     }
-    console.error(error)
     return Promise.reject({
       code: 500,
       message: "There was an internal server error while processing your request, please try again later"
@@ -36,13 +35,13 @@ interface SessionRepositoryService {
 
 let sessionRepositoryService: SessionRepositoryService = {
   findSessionById: async (sessionId: string) => {
-    return await axios.get(`${apiUrl}/${sessionId}?populate=user`).then(response => response.data);
+    return await api.get(`${apiUrl}/${sessionId}?populate=user`).then(response => response.data);
   },
   createSession: async (session: Session) => {;
-    return await axios.post(`${apiUrl}`,session).then(response => response.data.id);
+    return await api.post(`${apiUrl}`,{user:session.user.id}).then(response => response.data.id);
   },
   deleteSession: async (sessionId: string) => {
-    await axios.delete(`${apiUrl}/${sessionId}`);
+    await api.delete(`${apiUrl}/${sessionId}`);
   },
 }
 

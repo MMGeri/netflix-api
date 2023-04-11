@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import sessions from "../services/sessions-service";
 import users from "../services/users-service";
-require('dotenv').config();
+import { sendErrorResponse } from "./responses";
+require("dotenv").config();
+
 
 function apiKeyValidator(req: Request, res: Response, next: NextFunction) {
   const apiKey = String(req.headers['x-admin-api-key']);
@@ -15,7 +17,12 @@ function apiKeyValidator(req: Request, res: Response, next: NextFunction) {
 async function sessionStateChecker(req: Request, res: Response, next: NextFunction) {
   const userId = String(req.params.id);
   const sessionId = String(req.headers['x-session-id']);
-  const session = await sessions.findSessionById(sessionId);
+  try{
+  var session = await sessions.findSessionById(sessionId);
+  } catch (error: any) {
+    sendErrorResponse(error, req, res);
+    return;
+  }
   if (!session || (session.user.id != userId && userId)) {
     res.status(401).json({ code: 401, message: 'Not logged in' });
     return;
@@ -25,9 +32,10 @@ async function sessionStateChecker(req: Request, res: Response, next: NextFuncti
 
 async function userResourceChecker(req: Request, res: Response, next: NextFunction) {
   const userId = String(req.params.id);
-  const user = await users.findUserById(userId);
-  if (!user) {
-    res.status(404).json({ code: 404, message: 'User not found' });
+  try{
+  var user = await users.findUserById(userId);
+  } catch (error: any) {
+    sendErrorResponse(error, req, res);
     return;
   }
   next();

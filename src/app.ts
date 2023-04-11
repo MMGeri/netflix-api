@@ -1,10 +1,11 @@
+require('dotenv').config();
 import express, { Application } from 'express';
 import path from 'path';
 import http from 'http';
 import * as OpenApiValidator from 'express-openapi-validator';
 import { errorHandler } from './utils/middleware';
 
-const port = 10020;
+const port = process.env.PORT || 10020;
 const app: Application = express();
 const apiSpec = path.join(__dirname, 'api/api.yaml');
 const openApiValidator = OpenApiValidator.middleware({

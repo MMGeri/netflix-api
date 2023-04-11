@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 import axios from "axios";
 
 const apiUrl = `${process.env.DB_API_URL}/videos`;
@@ -14,7 +14,6 @@ api.interceptors.response.use(
         message: "Video Not Found"
       })
     }
-    console.error(error)
     return Promise.reject({
       code: 500,
       message: "There was an internal server error while processing your request, please try again later"
