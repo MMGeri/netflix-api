@@ -1,39 +1,49 @@
+require('dotenv').config();
+import axios from "axios";
 import { User } from "./users-service";
 
-let sessions: Map<string, Session> = new Map<string, Session>();
+const apiUrl = `${process.env.DB_API_URL}/sessions`;
+const api = axios.create({
+  baseURL: apiUrl
+});
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (error?.response?.status === 404) {
+      return Promise.reject({
+        code: 404,
+        message: "Session Not Found"
+      })
+    }
+    console.error(error)
+    return Promise.reject({
+      code: 500,
+      message: "There was an internal server error while processing your request, please try again later"
+    })
+  }
+);
+
 
 type Session = {
   user: User;
 }
 
 interface SessionRepositoryService {
-  findSessionById: (sessionId: string) => Promise<Session | undefined>;
+  findSessionById: (sessionId: string) => Promise<Session>;
   createSession: (session: Session) => Promise<string>;
-  deleteSession: (sessionId: string) => Promise<boolean>;
+  deleteSession: (sessionId: string) => Promise<void>;
 }
 
 let sessionRepositoryService: SessionRepositoryService = {
   findSessionById: async (sessionId: string) => {
-    return sessions.get(sessionId);
+    return await axios.get(`${apiUrl}/${sessionId}?populate=user`).then(response => response.data);
   },
-  createSession: async (session: Session) => {
-    const sessionId = createSessionId(32);
-    sessions.set(sessionId, session);
-    return sessionId;
+  createSession: async (session: Session) => {;
+    return await axios.post(`${apiUrl}`,session).then(response => response.data.id);
   },
   deleteSession: async (sessionId: string) => {
-    return sessions.delete(sessionId);
+    await axios.delete(`${apiUrl}/${sessionId}`);
   },
-}
-
-function createSessionId(length: number): string {
-  let result = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charactersLength = characters.length;
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
 }
 
 export default sessionRepositoryService;
