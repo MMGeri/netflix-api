@@ -132,7 +132,6 @@ paths:
                     type: string
                     description: the session id
                     example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
-                    pattern: ^[\w\d]{24}$
                 additionalProperties: false
                 required:
                   - session-id
@@ -210,7 +209,6 @@ paths:
           schema: 
             type: string
             example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
-            pattern: ^[\w\d]{24}$
           description: the session id
         - in: path
           name: id
@@ -317,7 +315,6 @@ paths:
           schema: 
             type: string
             example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
-            pattern: ^[\w\d]{24}$
           required: true
           description: the session id
       responses:
@@ -400,7 +397,6 @@ paths:
           schema: 
             type: string
             example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
-            pattern: ^[\w\d]{24}$
           required: true
           description: the session id
       responses:
@@ -650,7 +646,6 @@ paths:
                     - Movie
                   example: Movie
               required: 
-                - id
                 - title
                 - category
                 - type
@@ -846,7 +841,6 @@ paths:
           schema: 
             type: string
             example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
-            pattern: ^[\w\d]{24}$
           required: true
           description: the session id
       responses:
