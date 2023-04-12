@@ -1,5 +1,7 @@
 import { expect } from 'chai';
 import axios from 'axios';
+import nock from 'nock';
+require("dotenv").config();
 
 import { isError, isUser } from '../../src/utils/type-checker';
 import  { Video } from '../../src/services/videos-service';
@@ -14,12 +16,28 @@ const video: Video = { id: videoId, title: "video", category: "category", type: 
 
 const sessionId = "6435d24e9044b886fc0ecde9";
 
+const API_URL = `http://localhost:${PORT}`
+const DB_API_URL = process.env.DB_API_URL || 'http://localhost:10021';
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY || '1234';
 
-describe('users resource', function () {
+describe.only('users resource', function () {
+    this.beforeAll(() => {
+        nock.cleanAll()
+    })
+
+    this.afterEach(() => {
+        nock.cleanAll()
+        // nock.restore() does not work
+    })
     const instance = axios.create({
         baseURL: `http://localhost:${PORT}`,
         validateStatus: undefined
     })
+
+    this.afterAll(() => {
+        nock.cleanAll()
+    })
+    
     describe('POST /users', function () {
         describe('request body is correct', function () {
             it('should return response with 201 Created', async () => {
@@ -101,9 +119,12 @@ describe('users resource', function () {
     describe('GET /users/64340e3e18acfbbf71d83d2b/logout', function () {
         describe('provided valid session id', function () {
             it('should return response with 204 No content', async () => {
+                nock(DB_API_URL)
+                .get(`/sessions/${sessionId}?populate=user`)
+                .reply(200, { id: sessionId, user: { id: '1234', name: 'user' } })
+                
 
                 const response = await instance.get(`/users/${userId}/logout`, { headers: { 'x-session-id': sessionId } });
-                //FIXME: mock
                 expect(response.status).to.equal(204);
                 expect(response.data).to.be.empty;
             })
@@ -119,6 +140,9 @@ describe('users resource', function () {
         })
         describe('user with id 64340e3e18acfbbf71d83d2e does not exist', function () {
             it('should return response with 404 Not found', async () => {
+                nock(DB_API_URL)
+                .get(`/sessions/${sessionId}?populate=user`)
+                .reply(200, { id: sessionId, user: { id: '1234', name: 'user' } })
 
                 const response = await instance.get(`/users/64340e3e18acfbbf71d83d2e/logout`);
 
@@ -131,9 +155,12 @@ describe('users resource', function () {
         describe('provided a valid video id in request body', function () {
             describe('provided valid session id', function () {
                 it('should return the updated queue', async () => {
+                    nock(DB_API_URL)
+                        .get(`/sessions/${sessionId}?populate=user`)
+                        .reply(200, { id: sessionId, user: { id: '1234', name: 'user' } })
 
                     const response = await instance.put('/users/64340e3e18acfbbf71d83d2b/queue', { videoId }, { headers: { 'x-session-id': sessionId } });
-                    //FIXME: mock session id
+
                     expect(response.status).to.equal(200);
                     expect(response.data).to.be.an('array');
                     expect(response.data).to.deep.contain(video);
@@ -160,7 +187,9 @@ describe('users resource', function () {
         })
         describe('provided an invalid video in request body with valid user id and valid session id', function () {
             it('should return response with 400 Bad request', async function () {
-                const sessionId = "12345678901234567890123456789012";
+                nock(DB_API_URL)
+                .get(`/sessions/${sessionId}?populate=user`)
+                .reply(200, { id: sessionId, user: { id: '1234', name: 'user' } })
                 const videoId = '1';
 
                 const response = await instance.put('/users/64340e3e18acfbbf71d83d2b/queue', { videoId }, { headers: { 'x-session-id': sessionId } });
@@ -174,9 +203,12 @@ describe('users resource', function () {
     describe('GET /users/64340e3e18acfbbf71d83d2b/queue?sort=id', function () {
         describe('provided valid session id', function () {
             it('should return the queue', async () => {
+                nock(DB_API_URL)
+                .get(`/sessions/${sessionId}?populate=user`)
+                .reply(200, { id: sessionId, user: { id: '1234', name: 'user' } })
 
                 const response = await instance.get('/users/64340e3e18acfbbf71d83d2b/queue?sort=id', { headers: { 'x-session-id': sessionId } });
-                //FIXME: mock
+
                 expect(response.status).to.equal(200);
                 expect(response.data).to.be.an('array')
                 expect(response.data).to.deep.contain(video);
@@ -204,5 +236,6 @@ describe('users resource', function () {
         })
     })
 });
+
 
 

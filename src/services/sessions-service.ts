@@ -12,6 +12,7 @@ api.interceptors.response.use(
     if (error?.response?.status === 404) {
       return Promise.resolve(undefined)
     }
+    console.error(error);
     return Promise.reject({
       code: 500,
       message: "There was an internal server error while processing your request, please try again later"

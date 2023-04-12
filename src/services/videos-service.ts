@@ -6,14 +6,12 @@ const api = axios.create({
   baseURL: apiUrl
 });
 api.interceptors.response.use(
-  response => response,
+  response => {return response;},
   error => {
     if (error?.response?.status === 404) {
-      return Promise.reject({
-        code: 404,
-        message: "Video Not Found"
-      })
+      return Promise.resolve(undefined)
     }
+    console.error(error);
     return Promise.reject({
       code: 500,
       message: "There was an internal server error while processing your request, please try again later"
@@ -34,32 +32,32 @@ type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 type NewVideo = Omit<Video, "id">
 
 interface VideoRepositoryService {
-  findVideoById: (id: string) => Promise<Video>;
-  createVideo: (video: NewVideo) => Promise<Video >;
+  findVideoById: (id: string) => Promise<Video | undefined>;
+  createVideo: (video: NewVideo) => Promise<Video | undefined>;
   deleteVideo: (id: string) => Promise<void>;
-  updateVideo: (videoId: string, video: NewVideo) => Promise<Video>;
+  updateVideo: (videoId: string, video: NewVideo) => Promise<Video | undefined>;
   getVideos: () => Promise<Video[]>;
   searchVideos: (query: string) => Promise<Video[]>;
 }
 
 let videoRepositoryService: VideoRepositoryService = {
   getVideos: async function (): Promise<Video[]> {
-    return await api.get(apiUrl).then(response => response.data);
+    return await api.get(apiUrl).then(response => response?.data);
   },
   searchVideos: async function (query: string): Promise<Video[]> {
-    return await api.get(`${apiUrl}?query={"title":{"$regex":"${query}"}}`).then(response => response.data);
+    return await api.get(`${apiUrl}?query={"title":{"$regex":"${query}"}}`).then(response => response?.data);
   },
   findVideoById: async function (id: string): Promise<Video> {
-    return await api.get(`${apiUrl}/${id}`).then(response => response.data);
+    return await api.get(`${apiUrl}/${id}`).then(response => response?.data);
   },
   createVideo: async function (newVideo: NewVideo) {
-    return await api.post(apiUrl, newVideo).then(response => response.data);
+    return await api.post(apiUrl, newVideo).then(response => response?.data);
   },
   deleteVideo: async function (id: string): Promise<void> {
     await api.delete(`${apiUrl}/${id}`)
   },
   updateVideo: async function (videoId: string, videoUpdate: NewVideo): Promise<Video> {
-    return await api.put(`${apiUrl}/${videoId}`, videoUpdate).then(response => response.data)
+    return await api.put(`${apiUrl}/${videoId}`, videoUpdate).then(response => response?.data)
   }
 }
 

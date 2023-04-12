@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import videos from '../services/videos-service';
-import { apiKeyValidator } from '../utils/middleware';
+import { apiKeyValidator, sessionStateChecker } from '../utils/middleware';
 import { sendErrorResponse } from '../utils/responses';
 
 
@@ -69,5 +69,5 @@ module.exports = {
   createVideo: [apiKeyValidator, createVideo],
   deleteVideo: [apiKeyValidator, deleteVideo],
   getVideos: [apiKeyValidator, getVideos],
-  searchVideos
+  searchVideos:[sessionStateChecker, searchVideos]
 };

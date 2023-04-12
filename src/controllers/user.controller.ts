@@ -85,7 +85,7 @@ async function userLogout(req: Request, res: Response) {
 module.exports = {
   getQueue: [userResourceChecker, sessionStateChecker, getQueue],
   queueVideo: [userResourceChecker, sessionStateChecker, queueVideo],
-  userLogout: [userResourceChecker, sessionStateChecker, userLogout],
+  userLogout: [ sessionStateChecker, userLogout],
   userLogin: [userResourceChecker, userLogin],
   createUser
 }

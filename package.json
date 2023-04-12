@@ -13,13 +13,13 @@
     "docker-run-dev": "docker run --rm -d --publish 10030:10020 --network netflix --name netflix-api-dev --volume %cd%:/home/node/app netflix-api:dev"
   },
   "dependencies": {
+    "axios": "^1.3.3",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-openapi-validator": "^4.12.12",
     "morgan": "^1.10.0",
-    "typescript": "^4.9.5",
-    "axios": "^1.3.3",
-    "ncp": "^2.0.0"
+    "ncp": "^2.0.0",
+    "typescript": "^4.9.5"
   },
   "devDependencies": {
     "@types/chai": "^4.3.4",
@@ -29,6 +29,7 @@
     "@types/sinon": "^10.0.13",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
+    "nock": "^13.3.0",
     "nodemon": "^2.0.22",
     "sinon": "^15.0.2",
     "ts-node": "^10.9.1"

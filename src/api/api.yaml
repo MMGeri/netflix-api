@@ -452,7 +452,7 @@ paths:
   /videos:
     get:
       description: |
-        Returns videos or tv shows by search with title
+        Returns videos or tv shows 
       operationId: getVideos
       x-eov-operation-handler: controllers/video.controller
       tags:
