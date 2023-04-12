@@ -12,7 +12,7 @@ async function createVideo(req: Request, res: Response) {
     sendErrorResponse(error, req, res);
     return;
   }
-  res.json(result);
+  res.status(201).json(result);
 }
 
 async function deleteVideo(req: Request, res: Response) {

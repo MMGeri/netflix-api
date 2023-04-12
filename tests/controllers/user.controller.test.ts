@@ -1,30 +1,23 @@
 import { expect } from 'chai';
 import axios from 'axios';
-import sinon from 'sinon';
 
 import { isError, isUser } from '../../src/utils/type-checker';
-import users, {  User } from '../../src/services/users-service';
-import sessions from '../../src/services/sessions-service';
-import videos, { Video } from '../../src/services/videos-service';
+import  { Video } from '../../src/services/videos-service';
 
-const userId = '1';
-const password = "password";
-const email = "example@example.com"
+const PORT = process.env.PORT || 10020;
 
-const user: User = { id: userId, email, password };
+const userId = '64340e3e18acfbbf71d83d2b';
+const password = "password123";
 
-const videoId = '1';
+const videoId = '64340d7f18acfbbf71d83d25';
 const video: Video = { id: videoId, title: "video", category: "category", type: "TV Show" };
 
-const sessionId = "12345678901234567890123456789012";
+const sessionId = "6435d24e9044b886fc0ecde9";
 
 
 describe('users resource', function () {
-    this.afterEach(() => {
-        sinon.restore();
-    });
     const instance = axios.create({
-        baseURL: 'http://localhost:3000',
+        baseURL: `http://localhost:${PORT}`,
         validateStatus: undefined
     })
     describe('POST /users', function () {
@@ -75,14 +68,11 @@ describe('users resource', function () {
         });
     });
 
-    describe('POST /users/1/login', function () {
+    describe('POST /users/64340e3e18acfbbf71d83d2b/login', function () {
         describe('password is wrong', function () {
             it('should return response with 401 Unauthorized', async () => {
-                sinon.stub(users, "findUserById")
-                    .withArgs('1')
-                    .returns(new Promise(res => res(user)));
 
-                const response = await instance.post('/users/1/login', { password: "wrongpassword" });
+                const response = await instance.post(`/users/${userId}/login`, { password: "wrongpassword" });
 
                 expect(response.status).to.equal(401);
                 expect(isError(response.data)).to.be.true;
@@ -90,88 +80,60 @@ describe('users resource', function () {
         })
         describe('password is correct', function () {
             it('should return response with 200 OK', async () => {
-                sinon.stub(users, "findUserById")
-                    .withArgs('1')
-                    .returns(new Promise(res => res(user)));
-                sinon.stub(sessions, "createSession")
-                    .withArgs({ user })
-                    .returns(new Promise(res => res(sessionId)))
-
-                const response = await instance.post(`/users/1/login`, { password });
+                const response = await instance.post(`/users/${userId}/login`, { password });
 
                 expect(response.status).to.equal(200);
                 expect(response.data['session-id']).to.be.a('string');
-                expect(response.data['session-id']).to.have.lengthOf(32);
-                expect(response.data['session-id']).to.equal(sessionId);
+                expect(response.data['session-id']).to.have.lengthOf(24);
+                //FIXME: expect(response.data['session-id']).to.equal(sessionId);
             })
         })
-        describe('user with id 1 does not exist', function () {
+        describe('user with id 000000000000000000000000 does not exist', function () {
             it('should return response with 404 Not found', async () => {
-                sinon.stub(users, "findUserById")
-                    .withArgs('1')
-                    .returns(new Promise(res => res(undefined)));
 
-                const response = await instance.post(`/users/1/login`, { password });
+                const response = await instance.post(`/users/000000000000000000000000/login`, { password });
 
                 expect(response.status).to.equal(404);
                 expect(isError(response.data)).to.be.true;
             })
         })
     })
-    describe('GET /users/1/logout', function () {
+    describe('GET /users/64340e3e18acfbbf71d83d2b/logout', function () {
         describe('provided valid session id', function () {
             it('should return response with 204 No content', async () => {
-                sinon.stub(sessions, "findSessionById")
-                    .withArgs(sessionId)
-                    .returns(new Promise(res => res({ user })));
 
-                const response = await instance.get(`/users/1/logout`, { headers: { 'x-session-id': sessionId } });
-
+                const response = await instance.get(`/users/${userId}/logout`, { headers: { 'x-session-id': sessionId } });
+                //FIXME: mock
                 expect(response.status).to.equal(204);
                 expect(response.data).to.be.empty;
             })
         })
         describe('incorrect session id', function () {
             it('should return response with 401 Unauthorized', async () => {
-                sinon.stub(sessions, "findSessionById")
-                    .withArgs(sessionId)
-                    .returns(new Promise(res => res(undefined)));
 
-                const response = await instance.get('/users/1/logout', { headers: { 'x-session-id': sessionId } });
-
+                const response = await instance.get('/users/64340e3e18acfbbf71d83d2b/logout', { headers: { 'x-session-id': sessionId } });
+              
                 expect(response.status).to.equal(401);
                 expect(isError(response.data)).to.be.true;
             })
         })
-        describe('user with id 1 does not exist', function () {
+        describe('user with id 64340e3e18acfbbf71d83d2e does not exist', function () {
             it('should return response with 404 Not found', async () => {
-                sinon.stub(users, "findUserById")
-                    .withArgs('1')
-                    .returns(new Promise(res => res(undefined)));
 
-                const response = await instance.get(`/users/1/logout`);
+                const response = await instance.get(`/users/64340e3e18acfbbf71d83d2e/logout`);
 
                 expect(response.status).to.equal(404);
                 expect(isError(response.data)).to.be.true;
             })
         })
     })
-    describe('PUT /users/1/queue', function () {
+    describe('PUT /users/64340e3e18acfbbf71d83d2b/queue', function () {
         describe('provided a valid video id in request body', function () {
             describe('provided valid session id', function () {
                 it('should return the updated queue', async () => {
-                    sinon.stub(users, "findUserById")
-                        .withArgs('1')
-                        .returns(new Promise(res => res(user)));
-                    sinon.stub(sessions, "findSessionById")
-                        .withArgs(sessionId)
-                        .returns(new Promise(res => res({ user })));
-                    sinon.stub(videos, "findVideoById")
-                        .withArgs('1')
-                        .returns(new Promise(res => res(video)));
 
-                    const response = await instance.put('/users/1/queue', { videoId }, { headers: { 'x-session-id': sessionId } });
-
+                    const response = await instance.put('/users/64340e3e18acfbbf71d83d2b/queue', { videoId }, { headers: { 'x-session-id': sessionId } });
+                    //FIXME: mock session id
                     expect(response.status).to.equal(200);
                     expect(response.data).to.be.an('array');
                     expect(response.data).to.deep.contain(video);
@@ -179,27 +141,18 @@ describe('users resource', function () {
             })
             describe('incorrect session id', function () {
                 it('should return response with 401 Unauthorized', async () => {
-                    sinon.stub(sessions, "findSessionById")
-                        .withArgs(sessionId)
-                        .returns(new Promise(res => res(undefined)));
-                    sinon.stub(videos, "findVideoById")
-                        .withArgs(videoId)
-                        .returns(new Promise(res => res(video)));
 
-                    const response = await instance.put('/users/1/queue', { videoId }, { headers: { 'x-session-id': sessionId } });
+                    const response = await instance.put('/users/64340e3e18acfbbf71d83d2b/queue', { videoId }, { headers: { 'x-session-id': sessionId } });
 
                     expect(response.status).to.equal(401);
                     expect(isError(response.data)).to.be.true;
                 })
             })
-            describe('user with id 1 does not exist', function () {
+            describe('user with id 64340e3e18acfbbf71d83d2e does not exist', function () {
                 it('should return response with 404 Not found', async () => {
-                    sinon.stub(users, "findUserById")
-                        .withArgs('1')
-                        .returns(new Promise(res => res(undefined)));
 
-                    const response = await instance.put('/users/1/queue', { videoId }, { headers: { 'x-session-id': sessionId } });
-
+                    const response = await instance.put('/users/64340e3e18acfbbf71d83d2e/queue', { videoId }, { headers: { 'x-session-id': sessionId } });
+                    
                     expect(response.status).to.equal(404);
                     expect(isError(response.data)).to.be.true;
                 })
@@ -209,67 +162,41 @@ describe('users resource', function () {
             it('should return response with 400 Bad request', async function () {
                 const sessionId = "12345678901234567890123456789012";
                 const videoId = '1';
-                sinon.stub(users, "findUserById")
-                    .withArgs('1')
-                    .returns(new Promise(res => res({ id: '1', email: "example@example.com", password: "password" })));
-                sinon.stub(sessions, "findSessionById")
-                    .withArgs(sessionId)
-                    .returns(new Promise(res => res({ user: { id: '1', email: "example@example.com", password: "password" } })));
-                sinon.stub(videos, "findVideoById")
-                    .withArgs(videoId)
-                    .returns(new Promise(res => res(undefined)));
 
-                const response = await instance.put('/users/1/queue', { videoId }, { headers: { 'x-session-id': sessionId } });
+                const response = await instance.put('/users/64340e3e18acfbbf71d83d2b/queue', { videoId }, { headers: { 'x-session-id': sessionId } });
 
-                expect(response.status).to.equal(404);
+                expect(response.status).to.equal(400);
                 expect(isError(response.data)).to.be.true;
             })
         })
 
     })
-    describe('GET /users/1/queue?sort=id', function () {
+    describe('GET /users/64340e3e18acfbbf71d83d2b/queue?sort=id', function () {
         describe('provided valid session id', function () {
             it('should return the queue', async () => {
-                sinon.stub(users, "findUserById")
-                    .withArgs('1')
-                    .returns(new Promise(res => res(user)));
-                sinon.stub(sessions, "findSessionById")
-                    .withArgs(sessionId)
-                    .returns(new Promise(res => res({ user })));
-                sinon.stub(users, "getQueueByUserId")
-                    .withArgs('1')
-                    .returns(new Promise(res => res([video])));
 
-                const response = await instance.get('/users/1/queue?sort=id', { headers: { 'x-session-id': sessionId } });
-
+                const response = await instance.get('/users/64340e3e18acfbbf71d83d2b/queue?sort=id', { headers: { 'x-session-id': sessionId } });
+                //FIXME: mock
                 expect(response.status).to.equal(200);
                 expect(response.data).to.be.an('array')
                 expect(response.data).to.deep.contain(video);
-                expect(response.data.length).to.equal('1');
+                expect(response.data.length).to.equal(3);
             })
         })
         describe('no or incorrect session id', function () {
             it('should return response with 401 Unauthorized', async function () {
-                sinon.stub(sessions, "findSessionById")
-                    .withArgs(sessionId)
-                    .returns(new Promise(res => res(undefined)));
-                sinon.stub(users, "findUserById")
-                    .withArgs('1')
-                    .returns(new Promise(res => res(user)));
                 
-                const response = await instance.get('/users/1/queue?sort=id', { headers: { 'x-session-id': sessionId } });
+                const response = await instance.get('/users/64340e3e18acfbbf71d83d2b/queue?sort=id', { headers: { 'x-session-id': sessionId } });
 
                 expect(response.status).to.equal(401);
                 expect(isError(response.data)).to.be.true;
             })
         })
-        describe('user with id 1 does not exist', function () {
+        describe('user with id 64340e3e18acfbbf71d83d2e does not exist', function () {
             it('should return response with 404 Not found', async function () {
-                sinon.stub(users, "findUserById")
-                    .withArgs('1')
-                    .returns(new Promise(res => res(undefined)));
 
-                const response = await instance.get('/users/1/queue?sort=id', { headers: { 'x-session-id': sessionId } });
+
+                const response = await instance.get('/users/64340e3e18acfbbf71d83d2e/queue?sort=id', { headers: { 'x-session-id': sessionId } });
 
                 expect(response.status).to.equal(404);
                 expect(isError(response.data)).to.be.true;

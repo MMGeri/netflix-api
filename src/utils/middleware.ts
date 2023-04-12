@@ -8,7 +8,7 @@ require("dotenv").config();
 function apiKeyValidator(req: Request, res: Response, next: NextFunction) {
   const apiKey = String(req.headers['x-admin-api-key']);
   if (apiKey !== process.env.ADMIN_API_KEY) {
-    res.status(401).json({ message: 'Provide a valid api key' });
+    res.status(401).json({code:401, message: 'Provide a valid api key' });
     return;
   };
   next();
