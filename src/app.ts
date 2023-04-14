@@ -2,8 +2,23 @@ require('dotenv').config();
 import express, { Application } from 'express';
 import path from 'path';
 import http from 'http';
+import axios from 'axios';
 import * as OpenApiValidator from 'express-openapi-validator';
 import { errorHandler } from './utils/middleware';
+
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    if (error?.response?.status === 404) {
+      return Promise.resolve(undefined)
+    }
+    console.error(error);
+    return Promise.reject({
+      code: 500,
+      message: "There was an internal server error while processing your request, please try again later"
+    })
+  }
+);
 
 const port = process.env.PORT || 10020;
 const app: Application = express();

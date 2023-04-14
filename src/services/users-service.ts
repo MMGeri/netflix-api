@@ -3,22 +3,7 @@ import axios from "axios";
 import { Video } from "./videos-service";
 
 const apiUrl = `${process.env.DB_API_URL}/users`;
-const api = axios.create({
-  baseURL: apiUrl
-});
-api.interceptors.response.use(
-  response => response,
-  error => {
-    if (error?.response?.status === 404) {
-      return Promise.resolve(undefined)
-    }
-    console.error(error);
-    return Promise.reject({
-      code: 500,
-      message: "There was an internal server error while processing your request, please try again later"
-    })
-  }
-);
+
 
 type User = {
   id: string;
@@ -42,30 +27,30 @@ interface UserRepositoryService {
 
 let userRepositoryService: UserRepositoryService = {
   findUserById: async function (id: string): Promise<User> {
-    return await api.get(`${apiUrl}/${id}`).then(response => response?.data)
+    return await axios.get(`${apiUrl}/${id}`).then(response => response?.data)
   },
 
   createUser: async function (newUser: NewUser) {
-    return await api.post(apiUrl, newUser).then(response => response?.data)
+    return await axios.post(apiUrl, newUser).then(response => response?.data)
   },
 
   deleteUser: async function (id: string) {
-    await api.delete(`${apiUrl}/${id}`);
+    await axios.delete(`${apiUrl}/${id}`);
   },
 
   updateUser: async function (userId: string, userUpdate: NewUser) {
-    return await api.put(`${apiUrl}/${userId}`, userUpdate).then(response => response?.data)
+    return await axios.put(`${apiUrl}/${userId}`, userUpdate).then(response => response?.data)
   },
   
   removeVideoFromQueue: async function (userId: string, videoId: string) {
-    return await api.delete(`${apiUrl}/${userId}/queue/${videoId}`).then(response => response?.data);
+    return await axios.delete(`${apiUrl}/${userId}/queue/${videoId}`).then(response => response?.data);
   },
   queueVideo: async function (userId: string, videoId: string) {
-    return await api.put(`${apiUrl}/${userId}/queue/${videoId}`).then(response => response?.data);
+    return await axios.put(`${apiUrl}/${userId}/queue/${videoId}`).then(response => response?.data);
   },
 
   getQueueByUserId: async function (id: string) {
-    return await api.get(`${apiUrl}/${id}/queue`).then(response => response?.data);
+    return await axios.get(`${apiUrl}/${id}/queue`).then(response => response?.data);
   }
 }
 

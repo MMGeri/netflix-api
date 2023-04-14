@@ -2,22 +2,8 @@ require("dotenv").config();
 import axios from "axios";
 
 const apiUrl = `${process.env.DB_API_URL}/videos`;
-const api = axios.create({
-  baseURL: apiUrl
-});
-api.interceptors.response.use(
-  response => {return response;},
-  error => {
-    if (error?.response?.status === 404) {
-      return Promise.resolve(undefined)
-    }
-    console.error(error);
-    return Promise.reject({
-      code: 500,
-      message: "There was an internal server error while processing your request, please try again later"
-    })
-  }
-);
+
+
 
 type VideoType = "Movie" | "TV Show";
 
@@ -42,22 +28,22 @@ interface VideoRepositoryService {
 
 let videoRepositoryService: VideoRepositoryService = {
   getVideos: async function (): Promise<Video[]> {
-    return await api.get(apiUrl).then(response => response?.data);
+    return await axios.get(apiUrl).then(response => response?.data);
   },
   searchVideos: async function (query: string): Promise<Video[]> {
-    return await api.get(`${apiUrl}?query={"title":{"$regex":"${query}"}}`).then(response => response?.data);
+    return await axios.get(`${apiUrl}?query={"title":{"$regex":"${query}"}}`).then(response => response?.data);
   },
   findVideoById: async function (id: string): Promise<Video> {
-    return await api.get(`${apiUrl}/${id}`).then(response => response?.data);
+    return await axios.get(`${apiUrl}/${id}`).then(response => response?.data);
   },
   createVideo: async function (newVideo: NewVideo) {
-    return await api.post(apiUrl, newVideo).then(response => response?.data);
+    return await axios.post(apiUrl, newVideo).then(response => response?.data);
   },
   deleteVideo: async function (id: string): Promise<void> {
-    await api.delete(`${apiUrl}/${id}`)
+    await axios.delete(`${apiUrl}/${id}`)
   },
   updateVideo: async function (videoId: string, videoUpdate: NewVideo): Promise<Video> {
-    return await api.put(`${apiUrl}/${videoId}`, videoUpdate).then(response => response?.data)
+    return await axios.put(`${apiUrl}/${videoId}`, videoUpdate).then(response => response?.data)
   }
 }
 
