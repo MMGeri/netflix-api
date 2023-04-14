@@ -17,7 +17,7 @@ const DB_API_URL = process.env.DB_API_URL || 'http://localhost:10021';
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || '1234';
 
 
-describe('videos resource', function () {
+describe.only('videos resource', function () {
     this.beforeAll(() => {
         nock.cleanAll()
     })

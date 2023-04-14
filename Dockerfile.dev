@@ -1,4 +1,4 @@
-FROM node:lts-alpine as builder
+FROM node:18.16.0-alpine3.17 as builder
 
 RUN mkdir -p /home/node/app
 WORKDIR /home/node/app
@@ -9,7 +9,7 @@ COPY . .
 RUN npm run build
 RUN chown -R node:node /home/node/app
 
-FROM node:lts-alpine
+FROM node:18.16.0-alpine3.17
 EXPOSE 10020
 
 USER node

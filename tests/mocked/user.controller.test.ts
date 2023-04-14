@@ -20,7 +20,7 @@ const API_URL = `http://localhost:${PORT}`
 const DB_API_URL = process.env.DB_API_URL || 'http://localhost:10021';
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || '1234';
 
-describe.only('users resource', function () {
+describe('users resource', function () {
     this.beforeAll(() => {
         nock.cleanAll()
     })
@@ -122,7 +122,8 @@ describe.only('users resource', function () {
                 nock(DB_API_URL)
                 .get(`/sessions/${sessionId}?populate=user`)
                 .reply(200, { id: sessionId, user: { id: '1234', name: 'user' } })
-                
+                .delete(`/sessions/${sessionId}`)
+                .reply(204)
 
                 const response = await instance.get(`/users/${userId}/logout`, { headers: { 'x-session-id': sessionId } });
                 expect(response.status).to.equal(204);
