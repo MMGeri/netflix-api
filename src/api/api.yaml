@@ -455,6 +455,8 @@ paths:
         Returns videos or tv shows 
       operationId: getVideos
       x-eov-operation-handler: controllers/video.controller
+      security:
+        - ApiKeyAuth: []
       tags:
         - Videos
       parameters:
@@ -464,12 +466,6 @@ paths:
           required: false
           schema:
             type: string
-        - in: header
-          name: X-Admin-API-key
-          schema:
-            type: string
-          required: true
-          description: An api key
       responses:
         '200':
           description: List of videos
@@ -508,6 +504,8 @@ paths:
         Create new video data
       operationId: createVideo
       x-eov-operation-handler: controllers/video.controller
+      security:
+        - ApiKeyAuth: []
       tags:
         - Videos
       requestBody:
@@ -536,13 +534,6 @@ paths:
                 - category
                 - type
               additionalProperties: false
-      parameters:
-        - in: header
-          name: X-Admin-API-key
-          schema:
-            type: string
-          required: true
-          description: An api key
       responses:
         '201':
           description: Video created
@@ -623,6 +614,8 @@ paths:
           Change video data
       operationId: changeVideo
       x-eov-operation-handler: controllers/video.controller
+      security:
+        - ApiKeyAuth: []
       tags:
         - Videos
       requestBody:
@@ -658,12 +651,6 @@ paths:
             type: string
           description: The id of the video
           example: 64340d6318acfbbf71d83d24
-        - in: header
-          name: X-Admin-API-key
-          schema:
-            type: string
-          required: true
-          description: An api key
       responses:
         '200':
           description: Video was successfully changed
@@ -760,6 +747,8 @@ paths:
           Delete video data
       operationId: deleteVideo
       x-eov-operation-handler: controllers/video.controller
+      security:
+        - ApiKeyAuth: []
       tags:
         - Videos
       parameters:
@@ -770,12 +759,6 @@ paths:
             type: string
           description: The id of the video
           example: 64340d6318acfbbf71d83d24
-        - in: header
-          name: X-Admin-API-key
-          schema:
-            type: string
-          required: true
-          description: An api key
       responses:
         '204':
           description: No content
@@ -866,8 +849,14 @@ paths:
                 $ref: '#/components/schemas/Error'
     
 components:
-  schemas:
+  securitySchemes:
   
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Admin-Api-key
+
+  schemas:
     User:
       description: A user object
       properties:

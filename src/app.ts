@@ -6,6 +6,30 @@ import axios from 'axios';
 import * as OpenApiValidator from 'express-openapi-validator';
 import { errorHandler } from './utils/middleware';
 
+console.log(process.env.ADMIN_API_KEY + " ASDASD")
+
+const port = process.env.PORT || 10020;
+const app: Application = express();
+const apiSpec = path.join(__dirname, 'api/api.yaml');
+const openApiValidator = OpenApiValidator.middleware({
+  apiSpec,
+  operationHandlers: path.join(__dirname),
+  validateSecurity:{
+    handlers: {
+      ApiKeyAuth: (req, scopes, schema) => {
+        const apiKey = req.headers['x-admin-api-key'];
+        if (apiKey === process.env.ADMIN_API_KEY) {
+          return Promise.resolve(true);
+        }
+        return Promise.reject({
+          code: 401,
+          message: "Invalid API Key"
+        })
+      }
+    }
+  }
+})
+
 axios.interceptors.response.use(
   response => response,
   error => {
@@ -19,14 +43,6 @@ axios.interceptors.response.use(
     })
   }
 );
-
-const port = process.env.PORT || 10020;
-const app: Application = express();
-const apiSpec = path.join(__dirname, 'api/api.yaml');
-const openApiValidator = OpenApiValidator.middleware({
-  apiSpec,
-  operationHandlers: path.join(__dirname)
-})
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.text());

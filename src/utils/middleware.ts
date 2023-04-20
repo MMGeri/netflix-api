@@ -4,16 +4,6 @@ import users from "../services/users-service";
 import { sendErrorResponse } from "./responses";
 require("dotenv").config();
 
-
-function apiKeyValidator(req: Request, res: Response, next: NextFunction) {
-  const apiKey = String(req.headers['x-admin-api-key']);
-  if (apiKey !== process.env.ADMIN_API_KEY) {
-    res.status(401).json({code:401, message: 'Provide a valid api key' });
-    return;
-  };
-  next();
-}
-
 async function sessionStateChecker(req: Request, res: Response, next: NextFunction) {
   const sessionId = String(req.headers['x-session-id']);
   try{
@@ -51,5 +41,5 @@ function errorHandler(err: any, req: Request, res: Response, next: NextFunction)
   });
 }
 
-export { sessionStateChecker, apiKeyValidator, userResourceChecker, errorHandler }
+export { sessionStateChecker, userResourceChecker, errorHandler }
 

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import videos from '../services/videos-service';
-import { apiKeyValidator, sessionStateChecker } from '../utils/middleware';
+import { sessionStateChecker } from '../utils/middleware';
 import { sendErrorResponse } from '../utils/responses';
 
 
@@ -65,9 +65,9 @@ async function changeVideo(req: Request, res: Response) {
 
 
 module.exports = {
-  changeVideo: [apiKeyValidator, changeVideo],
-  createVideo: [apiKeyValidator, createVideo],
-  deleteVideo: [apiKeyValidator, deleteVideo],
-  getVideos: [apiKeyValidator, getVideos],
-  searchVideos:[sessionStateChecker, searchVideos]
+  changeVideo: [changeVideo],
+  createVideo: [createVideo],
+  deleteVideo: [deleteVideo],
+  getVideos: [getVideos],
+  searchVideos: [sessionStateChecker, searchVideos]
 };
