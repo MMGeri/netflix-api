@@ -6,7 +6,7 @@ COPY package*.json .
 RUN npm install --production
 
 COPY . .
-RUN npm run build
+RUN npm run build-prod
 RUN chown -R node:node /home/node/app
 
 FROM node:18.16.0-alpine3.17

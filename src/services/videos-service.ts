@@ -1,9 +1,7 @@
 require("dotenv").config();
 import axios from "axios";
 
-const apiUrl = `${process.env.DB_API_URL}/videos`;
-
-
+const apiUrl = `http://${process.env.DB_API}:${process.env.DB_API_PORT}/videos`;
 
 type VideoType = "Movie" | "TV Show";
 
@@ -46,8 +44,6 @@ let videoRepositoryService: VideoRepositoryService = {
     return await axios.put(`${apiUrl}/${videoId}`, videoUpdate).then(response => response?.data)
   }
 }
-
-
 
 export default videoRepositoryService
 export { Video, NewVideo }

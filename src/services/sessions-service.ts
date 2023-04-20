@@ -2,10 +2,7 @@ require("dotenv").config();
 import axios from "axios";
 import { User } from "./users-service";
 
-const apiUrl = `${process.env.DB_API_URL}/sessions`;
-
-
-
+const apiUrl = `http://${process.env.DB_API}:${process.env.DB_API_PORT}/sessions`;
 
 type Session = {
   id: string;

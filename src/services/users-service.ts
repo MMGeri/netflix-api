@@ -2,8 +2,7 @@ require("dotenv").config();
 import axios from "axios";
 import { Video } from "./videos-service";
 
-const apiUrl = `${process.env.DB_API_URL}/users`;
-
+const apiUrl = `http://${process.env.DB_API}:${process.env.DB_API_PORT}/users`;
 
 type User = {
   id: string;
