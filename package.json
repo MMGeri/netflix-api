@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node --trace-warnings ./dist/src/app.js",
-	"build-prod": "tsc --project tsconfig.prod.json && ncp ./src/api ./dist/src/api --stopOnErr",
+	  "build-prod": "tsc --project tsconfig.prod.json && ncp ./src/api ./dist/src/api --stopOnErr",
     "build": "tsc && ncp ./src/api ./dist/src/api --stopOnErr",
     "test": "mocha --exit -r ./node_modules/ts-node/register 'tests/**/*.ts'",
     "test-win": "mocha --exit -r ./node_modules/ts-node/register 'tests/**/*.ts'",
