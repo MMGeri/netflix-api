@@ -6,8 +6,6 @@ import axios from 'axios';
 import * as OpenApiValidator from 'express-openapi-validator';
 import { errorHandler } from './utils/middleware';
 
-console.log(process.env.ADMIN_API_KEY + " ASDASD")
-
 const port = process.env.PORT || 10020;
 const app: Application = express();
 const apiSpec = path.join(__dirname, 'api/api.yaml');
