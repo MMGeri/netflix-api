@@ -19,7 +19,7 @@ interface UserRepositoryService {
   deleteUser: (userId: string) => Promise<void>;
   updateUser: (userId: string, user: NewUser) => Promise<User | undefined>;
 
-  getQueueByUserId: (userId: string) => Promise<Video[] | []>;
+  getQueueByUserId: (userId: string, sortBy:string) => Promise<Video[] | []>;
   removeVideoFromQueue: (userId: string, videoId: string) => Promise<Video[] | []>;
   queueVideo: (userId: string, videoId: string) => Promise<Video[] | []>;
 }
@@ -48,8 +48,8 @@ let userRepositoryService: UserRepositoryService = {
     return await axios.put(`${apiUrl}/${userId}/queue/${videoId}`).then(response => response?.data);
   },
 
-  getQueueByUserId: async function (id: string) {
-    return await axios.get(`${apiUrl}/${id}/queue`).then(response => response?.data);
+  getQueueByUserId: async function (id: string,sortBy:string) {
+    return await axios.get(`${apiUrl}/${id}/queue?sort=${sortBy}`).then(response => response?.data);
   }
 }
 
