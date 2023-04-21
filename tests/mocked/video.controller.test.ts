@@ -13,11 +13,11 @@ const videoId = '64340d7f18acfbbf71d83d25';
 const sessionId = "6435d8059044b886fc0ed1e2";
 
 const API_URL = `http://localhost:${PORT}`
-const DB_API_URL = process.env.DB_API_URL || 'http://localhost:10021';
+const DB_API_URL = `http://${process.env.DB_API}:${process.env.DB_API_PORT}`;
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || '1234';
 
 
-describe.only('videos resource', function () {
+describe('videos resource', function () {
     this.beforeAll(() => {
         nock.cleanAll()
     })
@@ -35,7 +35,12 @@ describe.only('videos resource', function () {
     describe('GET /videos', () => {
         describe('provide valid admin api key', () => {
             it('should return response with 200 OK', async () => {
+                nock(DB_API_URL)
+                    .get('/videos')
+                    .reply(200, [{ id: videoId, title: "video", category: "category", type: "TV Show" }])
+
                 const response = await instance.get('/videos', { headers: { 'x-admin-api-key': ADMIN_API_KEY } });
+
                 expect(response.status).to.equal(200);
                 expect(response.data).to.be.an('array');
                 if (response.data.length > 0) {
@@ -54,7 +59,9 @@ describe.only('videos resource', function () {
     describe('POST /videos', () => {
         describe('provide valid admin api key with valid req body', () => {
             it('should return response with 201 Created', async () => {
-
+                nock(DB_API_URL)
+                    .post('/videos')
+                    .reply(201, { id: videoId, title: "video", category: "category", type: "TV Show" })
 
                 const video: NewVideo = { title: "video", category: "category", type: "TV Show" };
                 const response = await instance.post('/videos', video, { headers: { 'x-admin-api-key': ADMIN_API_KEY } });
