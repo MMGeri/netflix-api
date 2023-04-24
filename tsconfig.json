@@ -2,7 +2,9 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Node 18",
   "compilerOptions": {
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "module": "commonjs",
     "target": "es2022",
     "outDir": "./dist",
@@ -13,10 +15,13 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "types":[
+    "types": [
       "mocha",
       "node"
     ]
+  },
+  "ts-node": {
+    "files": true
   },
   "exclude": [
     "./node_modules/",

@@ -13,8 +13,8 @@ paths:
     post:
       description: |
         creates a user
-      operationId: userCreate
-      x-eov-operation-handler: api/controllers/user.controller
+      operationId: createUser
+      x-eov-operation-handler: controllers/user.controller
       tags:
         - Users
       requestBody:
@@ -93,7 +93,7 @@ paths:
       description: |
         logs in a user and returns the user object
       operationId: userLogin
-      x-eov-operation-handler: api/controllers/user.controller
+      x-eov-operation-handler: controllers/user.controller
       tags:
         - Users
       parameters:
@@ -101,9 +101,9 @@ paths:
           name: id
           required: true
           schema:
-            type: number
+            type: string
           description: The id of the user
-          example: 1
+          example: 64340eee18acfbbf71d83d2c
       requestBody:
         description: User information
         required: true
@@ -132,7 +132,6 @@ paths:
                     type: string
                     description: the session id
                     example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
-                    pattern: ^[\w\d]{32}$
                 additionalProperties: false
                 required:
                   - session-id
@@ -201,7 +200,7 @@ paths:
       description: |
         log out of user
       operationId: userLogout
-      x-eov-operation-handler: api/controllers/user.controller
+      x-eov-operation-handler: controllers/user.controller
       tags:
         - Users
       parameters:
@@ -210,15 +209,14 @@ paths:
           schema: 
             type: string
             example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
-            pattern: ^[\w\d]{32}$
           description: the session id
         - in: path
           name: id
           required: true
           schema: 
-            type: number
+            type: string
           description: The id of the user
-          example: 1
+          example: 64340eee18acfbbf71d83d2c
       responses:
         '204':
           description: No content
@@ -287,7 +285,7 @@ paths:
       description: |
         Update the users queue with the video specified by its id
       operationId: queueVideo
-      x-eov-operation-handler: api/controllers/user.controller
+      x-eov-operation-handler: controllers/user.controller
       tags:
         - Users
       requestBody:
@@ -298,9 +296,9 @@ paths:
             schema:
               properties:
                   videoId:
-                    type: number
+                    type: string
                     description: id of the video
-                    example: 1
+                    example: 64340d6318acfbbf71d83d24
               required:
                 - videoId
               additionalProperties: false
@@ -310,14 +308,13 @@ paths:
           description: id of the user
           required: true
           schema:
-            type: number
-          example: 1
+            type: string
+          example: 64340eee18acfbbf71d83d2c
         - in: header
           name: X-Session-ID
           schema: 
             type: string
             example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
-            pattern: ^[\w\d]{32}$
           required: true
           description: the session id
       responses:
@@ -374,7 +371,7 @@ paths:
       description: |
         Get your queue
       operationId: getQueue
-      x-eov-operation-handler: api/controllers/user.controller
+      x-eov-operation-handler: controllers/user.controller
       tags:
         - Users
       parameters:
@@ -383,8 +380,8 @@ paths:
           description: id of the user
           required: true
           schema:
-            type: number
-          example: 1
+            type: string
+          example: 64340eee18acfbbf71d83d2c
         - name: sort
           in: query
           required: true
@@ -400,7 +397,6 @@ paths:
           schema: 
             type: string
             example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
-            pattern: ^[\w\d]{32}$
           required: true
           description: the session id
       responses:
@@ -458,7 +454,7 @@ paths:
       description: |
         Returns videos or tv shows by search with title
       operationId: getVideos
-      x-eov-operation-handler: api/controllers/video.controller
+      x-eov-operation-handler: controllers/video.controller
       tags:
         - Videos
       parameters:
@@ -469,13 +465,11 @@ paths:
           schema:
             type: string
         - in: header
-          name: X-Session-ID
-          schema: 
+          name: X-Admin-API-key
+          schema:
             type: string
-            example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
-            pattern: ^[\w\d]{32}$
           required: true
-          description: the session id
+          description: An api key
       responses:
         '200':
           description: List of videos
@@ -513,7 +507,7 @@ paths:
       description: |
         Create new video data
       operationId: createVideo
-      x-eov-operation-handler: api/controllers/video.controller
+      x-eov-operation-handler: controllers/video.controller
       tags:
         - Videos
       requestBody:
@@ -558,8 +552,8 @@ paths:
                 properties:
                   id:
                     description: Id of the video
-                    type: number
-                    example: 1
+                    type: string
+                    example: 64340d6318acfbbf71d83d24
                   title:
                     description: The title of the movie or tv show
                     type: string
@@ -628,7 +622,7 @@ paths:
       description: |
           Change video data
       operationId: changeVideo
-      x-eov-operation-handler: api/controllers/video.controller
+      x-eov-operation-handler: controllers/video.controller
       tags:
         - Videos
       requestBody:
@@ -652,7 +646,6 @@ paths:
                     - Movie
                   example: Movie
               required: 
-                - id
                 - title
                 - category
                 - type
@@ -662,9 +655,9 @@ paths:
           name: id
           required: true
           schema:
-            type: number
+            type: string
           description: The id of the video
-          example: 1
+          example: 64340d6318acfbbf71d83d24
         - in: header
           name: X-Admin-API-key
           schema:
@@ -679,9 +672,9 @@ paths:
               schema:
                 properties:
                   id:
-                    type: number
+                    type: string
                     description: Unique identifier for the video generated by the database
-                    example: 1
+                    example: 64340d6318acfbbf71d83d24
                   title:
                     type: string
                     description: Title of the video
@@ -766,7 +759,7 @@ paths:
       description: |
           Delete video data
       operationId: deleteVideo
-      x-eov-operation-handler: api/controllers/video.controller
+      x-eov-operation-handler: controllers/video.controller
       tags:
         - Videos
       parameters:
@@ -774,9 +767,9 @@ paths:
           name: id
           required: true
           schema:
-            type: number
+            type: string
           description: The id of the video
-          example: 1
+          example: 64340d6318acfbbf71d83d24
         - in: header
           name: X-Admin-API-key
           schema:
@@ -833,7 +826,7 @@ paths:
       description: |
         Returns videos
       operationId: searchVideos
-      x-eov-operation-handler: api/controllers/video.controller
+      x-eov-operation-handler: controllers/video.controller
       tags:
         - Videos
       parameters:
@@ -848,7 +841,6 @@ paths:
           schema: 
             type: string
             example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
-            pattern: ^[\w\d]{32}$
           required: true
           description: the session id
       responses:
@@ -880,9 +872,9 @@ components:
       description: A user object
       properties:
         id:
-          type: number
+          type: string
           description: The id of the user
-          example: 1
+          example: 64340eee18acfbbf71d83d2c
         email:
           type: string
           description: The email of the user
@@ -905,9 +897,9 @@ components:
       title: Video
       properties:
         id:
-         type: number
+         type: string
          description: Unique identifier for the video generated by the database
-         example: 1
+         example: 64340d6318acfbbf71d83d24
         title:
           type: string
           description: Title of the video
