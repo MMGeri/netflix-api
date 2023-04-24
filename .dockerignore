@@ -6,3 +6,4 @@
 *docker-compose*
 node_modules
 tests
+.env
