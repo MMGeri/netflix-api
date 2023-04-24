@@ -20,7 +20,7 @@ const API_URL = `http://localhost:${PORT}`
 const DB_API_URL = `http://${process.env.DB_API}:${process.env.DB_API_PORT}`;
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || '1234';
 
-describe('users resource', function () {
+describe('Mocked Users resource', function () {
     this.beforeAll(() => {
         nock.cleanAll()
     })

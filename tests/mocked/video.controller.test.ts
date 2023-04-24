@@ -17,7 +17,7 @@ const DB_API_URL = `http://${process.env.DB_API}:${process.env.DB_API_PORT}`;
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || '1234';
 
 
-describe('videos resource', function () {
+describe('Mocked Videos resource', function () {
     this.beforeAll(() => {
         nock.cleanAll()
     })
