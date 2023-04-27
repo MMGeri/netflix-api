@@ -1,0 +1,49 @@
+version: "3.8"
+
+name: netflix
+
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy:alpine
+    networks:
+      - netflix
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    depends_on:
+      api:
+        condition: service_started
+    restart: always
+    ports:
+      - "8080:80"
+
+  api:
+    build:
+      context: ./netflix-api
+      dockerfile: Dockerfile.dev
+    ports:
+      - "10020:10020"
+    volumes:
+      - './netflix-api:/home/node/app'
+
+  db-api:
+    ports:
+        - "10021:10021"
+    volumes:
+      - './netflix-db-api:/home/node/app'
+    build:
+      context: ./netflix-db-api
+      dockerfile: Dockerfile.dev
+
+  mongo:
+    ports:
+      - "27017:27017"
+    volumes:
+      - 'netflix-db-data-dev:/data/db'
+      - 'netflix-db-configdb-dev:/data/configdb'
+
+
+volumes:
+  netflix-db-data-dev:
+    name: netflix-db-data-dev
+  netflix-db-configdb-dev:
+    name: netflix-db-configdb-dev
