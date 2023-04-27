@@ -1,0 +1,50 @@
+version: "3.8"
+
+name: netflix
+
+services:
+  api:
+    environment:
+      - VIRTUAL_HOST=netflix.local
+      - DB_API_PORT=10021
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+      - PORT=10020
+      - DB_API=netflix-db-api
+    networks: 
+      - netflix
+    depends_on:
+      db-api:
+        condition: service_healthy
+        restart: true
+    restart: always
+
+  db-api:
+    networks: 
+      - netflix
+    container_name: netflix-db-api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://netflix-db-api:10021/health"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    environment:
+      - PORT=10021
+      - NETFLIX_DB=netflix-db
+    depends_on:
+      mongo:
+        condition: service_started
+    restart: always
+
+  mongo:
+    container_name: netflix-db
+    networks: 
+      - netflix
+    image: mongo:5.0
+    expose:
+      - "27017"
+    restart: always
+
+networks: 
+  netflix:
+    name: netflix
+    driver: bridge

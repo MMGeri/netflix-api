@@ -44,8 +44,9 @@ async function userLogin(req: Request, res: Response) {
 
 async function getQueue(req: Request, res: Response) {
   const userId = String(req.params.id);
+  const sortBy = String(req.query.sort);
   try {
-    var queue = await users.getQueueByUserId(userId);
+    var queue = await users.getQueueByUserId(userId, sortBy);
   } catch (error: any) {
     sendErrorResponse(error, req, res);
     return;
@@ -56,9 +57,13 @@ async function getQueue(req: Request, res: Response) {
 async function queueVideo(req: Request, res: Response) {
   const videoId = String(req.body.videoId);
   try {
-    const video = await videos.findVideoById(videoId);
+    var video = await videos.findVideoById(videoId);
   } catch (error: any) {
     sendErrorResponse(error, req, res);
+    return;
+  }
+  if(!video) {
+    res.status(404).json({ code: 404, message: 'Video not found' });
     return;
   }
   const userId = String(req.params.id);
@@ -85,7 +90,7 @@ async function userLogout(req: Request, res: Response) {
 module.exports = {
   getQueue: [userResourceChecker, sessionStateChecker, getQueue],
   queueVideo: [userResourceChecker, sessionStateChecker, queueVideo],
-  userLogout: [userResourceChecker, sessionStateChecker, userLogout],
+  userLogout: [ sessionStateChecker, userLogout],
   userLogin: [userResourceChecker, userLogin],
   createUser
 }

@@ -4,18 +4,7 @@ import users from "../services/users-service";
 import { sendErrorResponse } from "./responses";
 require("dotenv").config();
 
-
-function apiKeyValidator(req: Request, res: Response, next: NextFunction) {
-  const apiKey = String(req.headers['x-admin-api-key']);
-  if (apiKey !== process.env.ADMIN_API_KEY) {
-    res.status(401).json({ message: 'Provide a valid api key' });
-    return;
-  };
-  next();
-}
-
 async function sessionStateChecker(req: Request, res: Response, next: NextFunction) {
-  const userId = String(req.params.id);
   const sessionId = String(req.headers['x-session-id']);
   try{
   var session = await sessions.findSessionById(sessionId);
@@ -23,7 +12,7 @@ async function sessionStateChecker(req: Request, res: Response, next: NextFuncti
     sendErrorResponse(error, req, res);
     return;
   }
-  if (!session || (session.user.id != userId && userId)) {
+  if (!session) {
     res.status(401).json({ code: 401, message: 'Not logged in' });
     return;
   }
@@ -52,5 +41,5 @@ function errorHandler(err: any, req: Request, res: Response, next: NextFunction)
   });
 }
 
-export { sessionStateChecker, apiKeyValidator, userResourceChecker, errorHandler }
+export { sessionStateChecker, userResourceChecker, errorHandler }
 
