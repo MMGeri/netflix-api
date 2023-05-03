@@ -1,0 +1,100 @@
+version: "3.8"
+
+name: netflix
+
+x-logging: &default-logging
+  driver: "fluentd"
+  options:
+    fluentd-address: localhost:24224
+    tag: "{{.Name}}"
+    fluentd-async: "true"
+
+x-deploy-options: &deploy-options
+  replicas: 1
+  restart_policy:
+    condition: on-failure
+    delay: 5s
+    max_attempts: 3
+    window: 120s
+  update_config:
+    parallelism: 1
+    delay: 5s
+  resources:
+    limits:
+      cpus: "0.50"
+      memory: 1g
+    reservations:
+      cpus: "0.25"
+      memory: 512m
+
+services:
+  fluentd:
+    networks: 
+      - netflix
+    image: fluent/fluentd:v1.12.0-debian-1.0
+    ports:
+      - "24224:24224"
+    volumes:
+      - ./fluentd/fluent.conf:/fluentd/etc/fluent.conf
+    deploy: *deploy-options
+    cpu_count: 1
+    memswap_limit: 1g
+
+  nginx-proxy:
+    image: jwilder/nginx-proxy:alpine
+    networks:
+      - netflix
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    depends_on:
+      api:
+        condition: service_started
+    restart: always
+    ports:
+      - "80:80"
+    logging: *default-logging
+    deploy: *deploy-options
+    cpu_count: 1
+    memswap_limit: 1g
+
+  api:
+    image: mmgeri/netflix-api:latest
+<<<<<<< HEAD
+    build:
+      context: ./netflix-api
+      dockerfile: Dockerfile
+=======
+>>>>>>> 8b47b8bb664772cd45a8ce7580a2f124eb8c43fd
+    logging: *default-logging
+    deploy: *deploy-options
+    cpu_count: 1
+    memswap_limit: 1g
+
+  db-api:
+    image: mmgeri/netflix-db-api:latest
+<<<<<<< HEAD
+    build:
+      context: ./netflix-db-api
+      dockerfile: Dockerfile
+=======
+>>>>>>> 8b47b8bb664772cd45a8ce7580a2f124eb8c43fd
+    logging: *default-logging
+    deploy: *deploy-options
+    cpu_count: 1
+    memswap_limit: 1g
+
+  mongo:
+    volumes:
+      - 'netflix-db-data:/data/db'
+      - 'netflix-db-configdb:/data/configdb'
+    logging: *default-logging
+    deploy: *deploy-options
+    cpu_count: 1
+    memswap_limit: 1g
+
+volumes:
+  netflix-db-data:
+    name: netflix-db-data
+  netflix-db-configdb:
+    name: netflix-db-configdb
+

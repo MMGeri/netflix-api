@@ -1,97 +1,88 @@
 import { Request, Response } from "express";
-import users, { NewUser } from "../services/users-service";
-import sessions from "../services/sessions-service";
-import videos from "../services/videos-service";
-import { sessionStateChecker, userResourceChecker } from "../utils/middleware";
-import { sendErrorResponse } from "../utils/responses";
+import usersService, { NewUser } from "../services/users-service";
+import videosService from "../services/videos-service";
+import kongService from "../services/kong-service";
 
-async function createUser(req: Request, res: Response) {
-  const user: NewUser = req.body;
+async function createUser(req: Request, res: Response, next: any) {
   try {
-    var result = await users.createUser(user);
-  } catch (error: any) {
-    sendErrorResponse(error, req, res);
-    return;
+    const user: NewUser = req.body;
+    const result = await usersService.createUser(user)
+    await kongService.createConsumer(user.username);
+    await kongService.addUserToAcl(user.username, 'user');
+    res.status(201).json(result);
+  } catch (error) {
+    next(error);
   }
-  res.status(201).json(result);
 }
 
-async function userLogin(req: Request, res: Response) {
-  const userId = String(req.params.id);
+async function userLogin(req: Request, res: Response, next: any) {
   try {
-    var user = await users.findUserById(userId);
-  } catch (error: any) {
-    sendErrorResponse(error, req, res);
-    return;
+    const username = req.body.username;
+    const password = req.body.password;
+    const user = await usersService.findUserByUsername(username);
+    if (!user) {
+      res.status(404).json({ code: 404, message: 'User not found' });
+      return;
+    }
+    if (user.password !== password) {
+      res.status(401).json({ code: 401, message: 'Wrong password' });
+      return;
+    }
+    const apikey = await kongService.createApiKey(username);
+    res.json({ apikey: apikey.key });
+  } catch (error) {
+    next(error);
   }
-  if(!user) {
-    res.status(404).json({ code: 404, message: 'User not found' });
-    return;
-  }
-  const password = req.body.password;
-  if (user.password !== password) {
-    res.status(401).json({ code: 401, message: 'Wrong password' });
-    return;
-  }
-  try {
-    var session = await sessions.createSession(user);
-  } catch (error: any) {
-    sendErrorResponse(error, req, res);
-    return;
-  }
-  res.json({ 'session-id': session.id });
 }
 
-async function getQueue(req: Request, res: Response) {
-  const userId = String(req.params.id);
-  const sortBy = String(req.query.sort);
+async function userLogout(req: Request, res: Response, next: any) {
   try {
-    var queue = await users.getQueueByUserId(userId, sortBy);
-  } catch (error: any) {
-    sendErrorResponse(error, req, res);
-    return;
+    const username = String(req.headers['x-consumer-username']);
+    const apikeys = await kongService.getApiKeysOfUser(username);
+    for (const apikey of apikeys) {
+      await kongService.deleteApiKey(username, apikey);
+    }
+    res.status(204).send();
+  } catch (error) {
+    next(error);
   }
-  res.json(queue);
 }
 
-async function queueVideo(req: Request, res: Response) {
-  const videoId = String(req.body.videoId);
+async function getQueue(req: Request, res: Response, next: any) {
   try {
-    var video = await videos.findVideoById(videoId);
-  } catch (error: any) {
-    sendErrorResponse(error, req, res);
-    return;
+    const username = String(req.headers['x-consumer-username']);
+    const sortBy = String(req.query.sort);
+
+    const queue = await usersService.getQueueByUsername(username, sortBy);
+
+    res.json(queue);
+  } catch (error) {
+    next(error);
   }
-  if(!video) {
-    res.status(404).json({ code: 404, message: 'Video not found' });
-    return;
-  }
-  const userId = String(req.params.id);
-  try {
-    var queue = await users.queueVideo(userId, videoId);
-  } catch (error: any) {
-    sendErrorResponse(error, req, res);
-    return;
-  }
-  res.json(queue);
 }
 
-async function userLogout(req: Request, res: Response) {
-  const sessionId = String(req.headers['x-session-id']);
+async function queueVideo(req: Request, res: Response, next: any) {
   try {
-    await sessions.deleteSession(sessionId);
-  } catch (error: any) {
-    sendErrorResponse(error, req, res);
-    return;
+    const username = String(req.headers['x-consumer-username']);
+    const videoId = String(req.body.videoId);
+    const video = await videosService.findVideoById(videoId);
+    if (!video) {
+      res.status(404).json({ code: 404, message: 'Video not found' });
+      return;
+    }
+    const queue = await usersService.queueVideo(username, videoId);
+    res.json(queue);
+  } catch (error) {
+    next(error);
   }
-  res.status(204).send();
 }
+
 
 module.exports = {
-  getQueue: [userResourceChecker, sessionStateChecker, getQueue],
-  queueVideo: [userResourceChecker, sessionStateChecker, queueVideo],
-  userLogout: [ sessionStateChecker, userLogout],
-  userLogin: [userResourceChecker, userLogin],
+  getQueue: [getQueue],
+  queueVideo: [queueVideo],
+  userLogout: [userLogout],
+  userLogin: [userLogin],
   createUser
 }
 

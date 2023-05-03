@@ -7,7 +7,7 @@ function isVideo(obj: any): obj is Video {
     return false;
 }
 function isUser(obj: any): obj is User {
-    if (obj?.id && obj?.email && obj?.password)
+    if (obj?.id && obj?.username && obj?.password)
         return true
     return false;
 }

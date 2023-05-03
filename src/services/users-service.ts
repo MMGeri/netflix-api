@@ -1,12 +1,12 @@
-require("dotenv").config();
 import axios from "axios";
 import { Video } from "./videos-service";
+require("dotenv").config();
 
-const apiUrl = `http://${process.env.DB_API}:${process.env.DB_API_PORT}/users`;
+const apiUrl = `${process.env.DB_API}/users`;
 
 type User = {
   id: string;
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -14,42 +14,39 @@ type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 type NewUser = Omit<User, "id">
 
 interface UserRepositoryService {
-  findUserById: (userId: string) => Promise<User | undefined>;
+  findUserByUsername: (username: string) => Promise<User | undefined>;
   createUser: (user: NewUser) => Promise<User | undefined>;
-  deleteUser: (userId: string) => Promise<void>;
-  updateUser: (userId: string, user: NewUser) => Promise<User | undefined>;
-
-  getQueueByUserId: (userId: string, sortBy:string) => Promise<Video[] | []>;
+  
+  getQueueByUsername: (username: string, sortBy:string) => Promise<Video[] | []>;
   removeVideoFromQueue: (userId: string, videoId: string) => Promise<Video[] | []>;
-  queueVideo: (userId: string, videoId: string) => Promise<Video[] | []>;
+  queueVideo: (username: string, videoId: string) => Promise<Video[] | []>;
 }
 
 let userRepositoryService: UserRepositoryService = {
-  findUserById: async function (id: string): Promise<User> {
-    return await axios.get(`${apiUrl}/${id}`).then(response => response?.data)
+  findUserByUsername: async function (username: string): Promise<User> {
+    return await axios.get(`${apiUrl}?query={"username":"${username}"}`).then(response => {
+     if(response?.data.length === 0) return undefined
+     if(response?.data.length > 1){
+      console.error("More than one user with the same username", response.data)
+      throw {code: 500, message:"More than one user with the same username"};
+     }
+     return response?.data[0]
+    }) 
   },
 
   createUser: async function (newUser: NewUser) {
     return await axios.post(apiUrl, newUser).then(response => response?.data)
   },
-
-  deleteUser: async function (id: string) {
-    await axios.delete(`${apiUrl}/${id}`);
-  },
-
-  updateUser: async function (userId: string, userUpdate: NewUser) {
-    return await axios.put(`${apiUrl}/${userId}`, userUpdate).then(response => response?.data)
-  },
   
-  removeVideoFromQueue: async function (userId: string, videoId: string) {
-    return await axios.delete(`${apiUrl}/${userId}/queue/${videoId}`).then(response => response?.data);
+  removeVideoFromQueue: async function (username: string, videoId: string) {
+    return await axios.delete(`${apiUrl}/${username}/queue/${videoId}`).then(response => response?.data);
   },
-  queueVideo: async function (userId: string, videoId: string) {
-    return await axios.put(`${apiUrl}/${userId}/queue/${videoId}`).then(response => response?.data);
+  queueVideo: async function (username: string, videoId: string) {
+    return await axios.put(`${apiUrl}/${username}/queue/${videoId}`).then(response => response?.data); 
   },
 
-  getQueueByUserId: async function (id: string,sortBy:string) {
-    return await axios.get(`${apiUrl}/${id}/queue?sort=${sortBy}`).then(response => response?.data);
+  getQueueByUsername: async function (username: string,sortBy:string) {
+    return await axios.get(`${apiUrl}/${username}/queue?sort=${sortBy}`).then(response => response?.data); 
   }
 }
 

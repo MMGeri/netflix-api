@@ -1,7 +1,7 @@
-require("dotenv").config();
 import axios from "axios";
+require("dotenv").config();
 
-const apiUrl = `http://${process.env.DB_API}:${process.env.DB_API_PORT}/videos`;
+const apiUrl = `${process.env.DB_API}/videos`;
 
 type VideoType = "Movie" | "TV Show";
 

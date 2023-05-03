@@ -1,0 +1,166 @@
+version: "3.8"
+
+name: netflix-kong
+
+x-logging: &default-logging
+  driver: "fluentd"
+  options:
+    fluentd-address: localhost:24224
+    tag: "{{.Name}}"
+    fluentd-async: "true"
+x-kong-config: &kong-env
+  KONG_DATABASE: postgres
+  KONG_PG_HOST: kong-db
+  KONG_PG_USER: kong
+  KONG_PG_PASSWORD: admin
+x-deploy-options: &deploy-options
+  restart_policy:
+    condition: on-failure
+    delay: 5s
+    max_attempts: 3
+    window: 120s
+  resources:
+    limits:
+      cpus: '0.5'
+      memory: 512m
+
+services:
+  fluentd:
+    image: fluent/fluentd:v1.12.0-debian-1.0
+    networks: 
+      - netflix
+    ports:
+      - "24224:24224"
+      - "5160:5160"
+    container_name: netflix-fluentd
+    volumes:
+      - ./fluentd/fluent.kong.conf:/fluentd/etc/fluent.conf
+    deploy: *deploy-options
+    cpu_count: 1
+    memswap_limit: 1g
+
+  kong-migrations:
+    image: kong:2.8.1-alpine
+    command: kong migrations bootstrap
+    depends_on:
+      - kong-db
+    environment:
+      <<: *kong-env
+    networks:
+      - netflix
+    restart: on-failure
+  kong-migrations-up:
+    image: kong:2.8.1-alpine
+    command: kong migrations up && kong migrations finish
+    depends_on:
+      - kong-db
+    environment:
+      <<: *kong-env
+    networks:
+      - netflix
+    restart: on-failure
+  kong:
+    image: kong:2.8.1-alpine
+    container_name: kong
+    environment:
+      <<: *kong-env
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+    networks:
+      - netflix
+    ports:
+      - "80:8000"
+      - "443:8443"
+
+      - "81:8001"
+      - "444:8444"
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: on-failure:5
+    security_opt:
+      - no-new-privileges
+  
+  api:
+    image: mmgeri/netflix-api:latest
+    container_name: netflix-api-1
+    environment:
+      - DB_API=http://netflix-db-api:10021
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+      - PORT=10020
+      - KONG_API=http://kong:8001
+    logging: *default-logging
+    deploy: *deploy-options
+    cpu_count: 1
+    memswap_limit: 1g
+
+  api2:
+    image: mmgeri/netflix-api:latest
+    container_name: netflix-api-2
+    networks:
+      - netflix
+    environment:
+      - DB_API=http://netflix-db-api:10021
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+      - PORT=10020
+      - KONG_API=http://kong:8001
+    depends_on:
+      db-api:
+        condition: service_healthy
+        restart: true
+    restart: always
+    logging: *default-logging
+    deploy: *deploy-options
+    cpu_count: 1
+    memswap_limit: 1g
+
+  db-api:
+    image: mmgeri/netflix-db-api:latest
+    logging: *default-logging
+    deploy: *deploy-options
+    cpu_count: 1
+    memswap_limit: 1g
+
+  kong-db:
+    image: postgres:9.5
+    container_name: kong-db
+    networks:
+      - netflix
+    environment:
+      POSTGRES_DB: kong
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: admin
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "kong"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart: on-failure
+    stdin_open: true
+    tty: true
+    volumes:
+      - kong-data:/var/lib/postgresql/data
+  mongo:
+    volumes:
+      - 'netflix-db-data:/data/db'
+      - 'netflix-db-configdb:/data/configdb'
+    ports:
+      - '27017:27017'
+    logging: *default-logging
+    deploy: *deploy-options
+    cpu_count: 1
+    memswap_limit: 1g
+
+volumes:
+  kong-data:
+    name: kong-data
+  netflix-db-data:
+    name: netflix-db-data
+  netflix-db-configdb:
+    name: netflix-db-configdb

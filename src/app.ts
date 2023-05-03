@@ -1,31 +1,17 @@
-require('dotenv').config();
 import express, { Application } from 'express';
 import path from 'path';
 import http from 'http';
 import axios from 'axios';
 import * as OpenApiValidator from 'express-openapi-validator';
 import { errorHandler } from './utils/middleware';
+require('dotenv').config();
 
 const port = process.env.PORT || 10020;
 const app: Application = express();
 const apiSpec = path.join(__dirname, 'api/api.yaml');
 const openApiValidator = OpenApiValidator.middleware({
   apiSpec,
-  operationHandlers: path.join(__dirname),
-  validateSecurity:{
-    handlers: {
-      ApiKeyAuth: (req, scopes, schema) => {
-        const apiKey = req.headers['x-admin-api-key'];
-        if (apiKey === process.env.ADMIN_API_KEY) {
-          return Promise.resolve(true);
-        }
-        return Promise.reject({
-          code: 401,
-          message: "Invalid API Key"
-        })
-      }
-    }
-  }
+  operationHandlers: path.join(__dirname)
 })
 
 axios.interceptors.response.use(
@@ -33,6 +19,12 @@ axios.interceptors.response.use(
   error => {
     if (error?.response?.status === 404) {
       return Promise.resolve(undefined)
+    }
+    if (error?.response?.status === 409) {
+      return Promise.reject({
+        code: 409,
+        message: "Resource already exists"
+      })
     }
     console.error(error);
     return Promise.reject({

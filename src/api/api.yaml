@@ -24,11 +24,10 @@ paths:
           application/json:
             schema:
               properties:
-                email:
+                username:
                   type: string
-                  description: The email of the user
-                  example: example@gmail.com
-                  pattern: ^[\w-\.]+@([\w-]+\.)+[\w-]{2,5}$
+                  description: The username of the currently logged in user
+                  example: username
                 password:
                   type: string
                   description: The password of  the user
@@ -36,7 +35,7 @@ paths:
                   minLength: 8
                   maxLength: 16
               required:
-                - email
+                - username
                 - password
               additionalProperties: false
       responses:
@@ -77,7 +76,7 @@ paths:
                   message:
                     description: The message of the response
                     type: string
-                    example: The user with the given id already exists
+                    example: The user with the given username already exists
                 required:
                   - code
                   - message
@@ -88,7 +87,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /users/{id}/login:
+  /users/login:
     post:
       description: |
         logs in a user and returns the user object
@@ -96,14 +95,6 @@ paths:
       x-eov-operation-handler: controllers/user.controller
       tags:
         - Users
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: The id of the user
-          example: 64340eee18acfbbf71d83d2c
       requestBody:
         description: User information
         required: true
@@ -111,6 +102,10 @@ paths:
           application/json:
             schema:
               properties:
+                username:
+                  description: username of the user
+                  type: string
+                  example: username
                 password:
                   description: password of the user
                   type: string
@@ -118,23 +113,24 @@ paths:
                   minLength: 8
                   maxLength: 16
               required:
+                - username
                 - password
               additionalProperties: false
       responses:
         '200':
-          description: returns a session id
+          description: returns an api key
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  session-id:
+                  apiKey:
                     type: string
-                    description: the session id
+                    description: The api key of the user
                     example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
                 additionalProperties: false
                 required:
-                  - session-id
+                  - apiKey
         '400':
           description: Bad request
           content:
@@ -184,7 +180,7 @@ paths:
                   message:
                     type: string
                     description: response code of the http request
-                    example: User with the specified id does not exist
+                    example: User with the specified username does not exist
                 required:
                   - code
                   - message
@@ -195,7 +191,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /users/{id}/logout:
+  /users/logout:
     get:
       description: |
         log out of user
@@ -204,19 +200,13 @@ paths:
       tags:
         - Users
       parameters:
-        - in: header
-          name: X-Session-ID
-          schema: 
-            type: string
-            example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
-          description: the session id
-        - in: path
-          name: id
+        - name: X-Consumer-Username
+          in: header
+          description: The username of the currently logged in user
           required: true
-          schema: 
+          schema:
             type: string
-          description: The id of the user
-          example: 64340eee18acfbbf71d83d2c
+            example: username
       responses:
         '204':
           description: No content
@@ -269,7 +259,7 @@ paths:
                   message:
                     description: The message of the response
                     type: string
-                    example: User with specified id does not exist
+                    example: User with specified username does not exist
                 required:
                   - code
                   - message
@@ -280,7 +270,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /users/{id}/queue:
+  /users/queue:
     put:
       description: |
         Update the users queue with the video specified by its id
@@ -302,21 +292,6 @@ paths:
               required:
                 - videoId
               additionalProperties: false
-      parameters:
-        - name: id
-          in: path
-          description: id of the user
-          required: true
-          schema:
-            type: string
-          example: 64340eee18acfbbf71d83d2c
-        - in: header
-          name: X-Session-ID
-          schema: 
-            type: string
-            example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
-          required: true
-          description: the session id
       responses:
         '200':
           description: The updated queue array
@@ -355,7 +330,7 @@ paths:
                   message:
                     description: The message of the response
                     type: string
-                    example: The user with specified id does not exist
+                    example: The user with specified username does not exist
                 required:
                   - code
                   - message
@@ -375,13 +350,6 @@ paths:
       tags:
         - Users
       parameters:
-        - name: id
-          in: path
-          description: id of the user
-          required: true
-          schema:
-            type: string
-          example: 64340eee18acfbbf71d83d2c
         - name: sort
           in: query
           required: true
@@ -393,12 +361,12 @@ paths:
               - type
               - category
         - in: header
-          name: X-Session-ID
+          name: X-Consumer-Username
           schema: 
             type: string
-            example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
+            example: username
           required: true
-          description: the session id
+          description: The username of the currently logged in user
       responses:
         '200':
           description: An array of videos
@@ -437,7 +405,7 @@ paths:
                   message:
                     description: The message of the response
                     type: string
-                    example: The user with specified id does not exist
+                    example: The user with specified username does not exist
                 required:
                   - code
                   - message
@@ -455,8 +423,6 @@ paths:
         Returns videos or tv shows 
       operationId: getVideos
       x-eov-operation-handler: controllers/video.controller
-      security:
-        - ApiKeyAuth: []
       tags:
         - Videos
       parameters:
@@ -504,8 +470,6 @@ paths:
         Create new video data
       operationId: createVideo
       x-eov-operation-handler: controllers/video.controller
-      security:
-        - ApiKeyAuth: []
       tags:
         - Videos
       requestBody:
@@ -523,7 +487,7 @@ paths:
                   description: category of the video or tv show
                   example: romance
                 type:
-                  description: the type of the media like Movie or TV Show
+                  description: The type of the media like Movie or TV Show
                   type: string
                   enum:
                     - Movie
@@ -554,7 +518,7 @@ paths:
                     description: category of the video or tv show
                     example: romance
                   type:
-                    description: the type of the media like Movie or TV Show
+                    description: The type of the media like Movie or TV Show
                     type: string
                     enum:
                       - Movie
@@ -614,8 +578,6 @@ paths:
           Change video data
       operationId: changeVideo
       x-eov-operation-handler: controllers/video.controller
-      security:
-        - ApiKeyAuth: []
       tags:
         - Videos
       requestBody:
@@ -747,8 +709,6 @@ paths:
           Delete video data
       operationId: deleteVideo
       x-eov-operation-handler: controllers/video.controller
-      security:
-        - ApiKeyAuth: []
       tags:
         - Videos
       parameters:
@@ -820,12 +780,12 @@ paths:
           schema:
             type: string
         - in: header
-          name: X-Session-ID
+          name: X-Consumer-Username
           schema: 
             type: string
-            example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
+            example: username
           required: true
-          description: the session id
+          description: The username of the currently logged in user
       responses:
         '200':
           description: List of videos
@@ -849,13 +809,6 @@ paths:
                 $ref: '#/components/schemas/Error'
     
 components:
-  securitySchemes:
-  
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: X-Admin-Api-key
-
   schemas:
     User:
       description: A user object
@@ -864,11 +817,10 @@ components:
           type: string
           description: The id of the user
           example: 64340eee18acfbbf71d83d2c
-        email:
+        username:
           type: string
-          description: The email of the user
-          example: example@gmail.com
-          pattern: ^[\w-\.]+@([\w-]+\.)+[\w-]{2,5}$
+          description: The username of the currently logged in user
+          example: username
         password:
           type: string
           description: The password of  the user
@@ -877,7 +829,7 @@ components:
           maxLength: 16
       required:
         - id
-        - email
+        - username
         - password
       additionalProperties: false
           
