@@ -17,10 +17,6 @@ services:
       - "8080:80"
 
   api:
-<<<<<<< HEAD
-    image: netflix-api:dev
-=======
->>>>>>> 8b47b8bb664772cd45a8ce7580a2f124eb8c43fd
     build:
       context: ./netflix-api
       dockerfile: Dockerfile.dev
@@ -30,10 +26,6 @@ services:
       - './netflix-api:/home/node/app'
 
   db-api:
-<<<<<<< HEAD
-    image: netflix-db-api:dev
-=======
->>>>>>> 8b47b8bb664772cd45a8ce7580a2f124eb8c43fd
     ports:
         - "10021:10021"
     volumes:

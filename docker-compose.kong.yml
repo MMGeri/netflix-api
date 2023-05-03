@@ -152,6 +152,7 @@ services:
       - 'netflix-db-configdb:/data/configdb'
     ports:
       - '27017:27017'
+    #TODO: remove ports
     logging: *default-logging
     deploy: *deploy-options
     cpu_count: 1

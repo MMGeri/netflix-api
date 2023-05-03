@@ -40,7 +40,9 @@ async function userLogout(req: Request, res: Response, next: any) {
     const username = String(req.headers['x-consumer-username']);
     const apikeys = await kongService.getApiKeysOfUser(username);
     for (const apikey of apikeys) {
-      await kongService.deleteApiKey(username, apikey);
+      if(apikey?.key){
+        await kongService.deleteApiKey(username, apikey.key);
+      }
     }
     res.status(204).send();
   } catch (error) {

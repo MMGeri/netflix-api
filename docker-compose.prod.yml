@@ -59,12 +59,6 @@ services:
 
   api:
     image: mmgeri/netflix-api:latest
-<<<<<<< HEAD
-    build:
-      context: ./netflix-api
-      dockerfile: Dockerfile
-=======
->>>>>>> 8b47b8bb664772cd45a8ce7580a2f124eb8c43fd
     logging: *default-logging
     deploy: *deploy-options
     cpu_count: 1
@@ -72,12 +66,6 @@ services:
 
   db-api:
     image: mmgeri/netflix-db-api:latest
-<<<<<<< HEAD
-    build:
-      context: ./netflix-db-api
-      dockerfile: Dockerfile
-=======
->>>>>>> 8b47b8bb664772cd45a8ce7580a2f124eb8c43fd
     logging: *default-logging
     deploy: *deploy-options
     cpu_count: 1

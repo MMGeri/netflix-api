@@ -31,5 +31,4 @@ let kongService: KongService = {
     }
 }
 
-//FIXME: átírni mindent működőképesre, és a paramétereket is átírni stb
 export default kongService;
