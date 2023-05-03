@@ -1,7 +1,0 @@
-$env:ADMIN_API_KEY=1234; docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-$env:ADMIN_API_KEY=1234; docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
-
-update images on hub:
-$env:ADMIN_API_KEY=1234; docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-docker push mmgeri/netflix-api:latest
-docker push mmgeri/netflix-db-api:latest
