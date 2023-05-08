@@ -6,6 +6,11 @@ import kongService from "../services/kong-service";
 async function createUser(req: Request, res: Response, next: any) {
   try {
     const user: NewUser = req.body;
+    const existingUser = await usersService.findUserByUsername(user.username);
+    if (existingUser) {
+      res.status(409).json({ code: 409, message: 'User already exists' });
+      return;
+    }
     const result = await usersService.createUser(user)
     await kongService.createConsumer(user.username);
     await kongService.addUserToAcl(user.username, 'user');
@@ -28,6 +33,11 @@ async function userLogin(req: Request, res: Response, next: any) {
       res.status(401).json({ code: 401, message: 'Wrong password' });
       return;
     }
+    const apikeys = await kongService.getApiKeysOfUser(username);
+    if(apikeys.data.length > 0) {
+      res.json({ apikey: apikeys.data[0].key });
+      return;
+    }
     const apikey = await kongService.createApiKey(username);
     res.json({ apikey: apikey.key });
   } catch (error) {
@@ -39,10 +49,8 @@ async function userLogout(req: Request, res: Response, next: any) {
   try {
     const username = String(req.headers['x-consumer-username']);
     const apikeys = await kongService.getApiKeysOfUser(username);
-    for (const apikey of apikeys) {
-      if(apikey?.key){
-        await kongService.deleteApiKey(username, apikey.key);
-      }
+    for (const apikey of apikeys.data) {
+      await kongService.deleteApiKey(username, apikey.id);
     }
     res.status(204).send();
   } catch (error) {

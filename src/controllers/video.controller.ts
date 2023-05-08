@@ -50,7 +50,7 @@ async function changeVideo(req: Request, res: Response, next: any) {
       res.status(404).json({ code: 404, message: 'Video not found' });
       return;
     }
-    res.json(result);
+    res.status(200).json(result);
   }
   catch (error) {
     next(error);

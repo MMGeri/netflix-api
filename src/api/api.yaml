@@ -124,13 +124,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  apiKey:
+                  apikey:
                     type: string
                     description: The api key of the user
                     example: asdfhkshdhfjdhaksjdhfiqjd2831jf8
                 additionalProperties: false
                 required:
-                  - apiKey
+                  - apikey
         '400':
           description: Bad request
           content:
@@ -278,6 +278,14 @@ paths:
       x-eov-operation-handler: controllers/user.controller
       tags:
         - Users
+      parameters:
+        - name: X-Consumer-Username
+          in: header
+          description: The username of the currently logged in user
+          required: true
+          schema:
+            type: string
+            example: username
       requestBody:
         description: Select the video which you want to put into the queue
         required: true
@@ -416,7 +424,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                
+
   /videos:
     get:
       description: |
