@@ -9,16 +9,16 @@ import { Video } from '../../src/services/videos-service';
 const PORT = process.env.PORT || 10020;
 
 const userId = '64340e3e18acfbbf71d83d2b';
-const password = "password123";
+const username = "username";
+const password = "password";
 
 const videoId = '64340d7f18acfbbf71d83d25';
 const video: Video = { id: videoId, title: "video", category: "category", type: "TV Show" };
 
-const sessionId = "6435d24e9044b886fc0ecde9";
-
 const API_URL = `http://localhost:${PORT}`
-const DB_API_URL = `http://${process.env.DB_API}:${process.env.DB_API_PORT}`;
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY || '1234';
+const DB_API_URL = process.env.DB_API || "http://localhost:10021";
+const KONG_API_URL = process.env.KONG_API || "http://kong:81";
+
 
 describe('Mocked Users resource', function () {
     this.beforeAll(() => {
@@ -30,7 +30,7 @@ describe('Mocked Users resource', function () {
         // nock.restore() does not work
     })
     const instance = axios.create({
-        baseURL: `http://localhost:${PORT}`,
+        baseURL: API_URL,
         validateStatus: undefined
     })
 
@@ -42,19 +42,22 @@ describe('Mocked Users resource', function () {
         describe('request body is correct', function () {
             it('should return response with 201 Created', async () => {
                 nock(DB_API_URL)
+                    .get(/\/users.*/)
+                    .reply(200, [{ id: userId, username: "username", password: password }])
+                    .persist()
                     .post('/users')
-                    .reply(201, { id: userId, email: "example@gmail.com", password: "password" })
+                    .reply(201, { id: userId, username: "username", password: "password" })
 
-                const newUser = { email: "example@example.com", password: "password" }
+                const newUser = { username: "username", password: "password" }
                 const response = await instance.post('/users', newUser);
 
                 expect(response.status).to.equal(201);
                 expect(isUser(response.data)).to.be.true;
             })
         });
-        describe('email is wrong', function () {
+        describe('username is wrong', function () {
             it('should return response with 400 Bad Request', async () => {
-                const newUser = { email: "exampleexample.com", password: "password", name: "John" }
+                const newUser = { username: "exampleexample.com", password: "password", name: "John" }
                 const response = await instance.post('/users', newUser);
 
                 expect(response.status).to.equal(400);
@@ -63,7 +66,7 @@ describe('Mocked Users resource', function () {
         })
         describe('password is too short', function () {
             it('should return response with 400 Bad Request', async () => {
-                const newUser = { email: "example@example.com", password: "pass" };
+                const newUser = { username: "username", password: "pass" };
                 const response = await instance.post('/users', newUser);
 
                 expect(response.status).to.equal(400);
@@ -72,7 +75,7 @@ describe('Mocked Users resource', function () {
         });
         describe('password is too long', function () {
             it('should return response with 400 Bad Request', async () => {
-                const newUser = { email: "example@example.com", password: "passpasspasspaapsdpaspdpaspdpaspdpaspsd" };
+                const newUser = { username: "username", password: "passpasspasspaapsdpaspdpaspdpaspdpaspsd" };
                 const response = await instance.post('/users', newUser);
 
                 expect(response.status).to.equal(400);
@@ -81,7 +84,7 @@ describe('Mocked Users resource', function () {
         });
         describe('request body is incorrect', function () {
             it('should return response with 400 Bad Request', async () => {
-                const badUser = { email: "exampleexample.com", password: "pass", name: "John" };
+                const badUser = { username: "exampleexample.com", password: "pass", name: "John" };
                 const response = await instance.post('/users', badUser);
 
                 expect(response.status).to.equal(400);
@@ -90,15 +93,20 @@ describe('Mocked Users resource', function () {
         });
     });
 
-    describe('POST /users/:id/login', function () {
+    describe('POST /users/login', function () {
         describe('password is wrong', function () {
             it('should return response with 401 Unauthorized', async () => {
                 nock(DB_API_URL)
-                    .get(`/users/${userId}`)
-                    .reply(200, { id: userId, email: "example@gmail.com", password: "password" })
+                    .get(/\/users.*/)
+                    .reply(200, [{ id: userId, username: "username", password: password }])
                     .persist()
+                nock(KONG_API_URL)
+                    .get(`/consumers/${username}/key-auth`)
+                    .reply(200, {data: [{ key: 'key' }]})
+                    .post(`/consumers/${username}/key-auth`)
+                    .reply(201, { key: 'key' })
 
-                const response = await instance.post(`/users/${userId}/login`, { password: "wrongpassword" });
+                const response = await instance.post(`/users/login`, { username ,password: "wrongpassword" });
 
                 expect(response.status).to.equal(401);
                 expect(isError(response.data)).to.be.true;
@@ -107,18 +115,20 @@ describe('Mocked Users resource', function () {
         describe('password is correct', function () {
             it('should return response with 200 OK', async () => {
                 nock(DB_API_URL)
-                    .get(`/users/${userId}`)
-                    .reply(200, { id: userId, email: "example@gmail.com", password: password })
+                    .get(/\/users.*/)
+                    .reply(200, [{ id: userId, username: "username", password: password }])
                     .persist()
-                    .post('/sessions')
-                    .reply(201, { id: sessionId, user: { id: userId, email: "example@gmail.com", password: password } })
+                nock(KONG_API_URL)
+                    .get(`/consumers/${username}/key-auth`)
+                    .reply(200, {data: [{ key: 'key' }]})
+                    .post(`/consumers/${username}/key-auth`)
+                    .reply(201, { key: 'key' })
 
-                const response = await instance.post(`/users/${userId}/login`, { password });
+                const response = await instance.post(`/users/login`, {username , password });
 
                 expect(response.status).to.equal(200);
-                expect(response.data['session-id']).to.be.a('string');
-                expect(response.data['session-id']).to.have.lengthOf(24);
-                expect(response.data['session-id']).to.equal(sessionId);
+                expect(response.data.apikey).to.be.a('string');
+                expect(response.data.apikey).to.equal('key');
             })
         })
         describe('user with id does not exist', function () {
@@ -134,94 +144,54 @@ describe('Mocked Users resource', function () {
             })
         })
     })
-    describe('GET /users/:id/logout', function () {
-        describe('provided valid session id', function () {
+    describe('GET /users/logout', function () {
             it('should return response with 204 No content', async () => {
-                nock(DB_API_URL)
-                    .get(`/sessions/${sessionId}?populate=user`)
-                    .reply(200, { id: sessionId, user: { id: '1234', name: 'user' } })
-                    .delete(`/sessions/${sessionId}`)
+                nock(KONG_API_URL)
+                    .get(`/consumers/${username}/key-auth`)
+                    .reply(200, {data: [{id:'key', key: 'key' }]})
+                    .delete(`/consumers/${username}/key-auth/key`)
                     .reply(204)
 
-                const response = await instance.get(`/users/${userId}/logout`, { headers: { 'x-session-id': sessionId } });
+                const response = await instance.get(`/users/logout`, { headers: { 'x-consumer-username': username } });
                 expect(response.status).to.equal(204);
                 expect(response.data).to.be.empty;
             })
-        })
-        describe('incorrect session id', function () {
-            it('should return response with 401 Unauthorized', async () => {
-                nock(DB_API_URL)
-                    .get(`/users/${userId}`)
-                    .reply(200, { id: userId, email: "example@gmail.com", password: password })
-                    .persist()
-                    .get(`/sessions/${sessionId}?populate=user`)
-                    .reply(404)
-
-                const response = await instance.get(`/users/${userId}/logout`, { headers: { 'x-session-id': sessionId } });
-
-                expect(response.status).to.equal(401);
-                expect(isError(response.data)).to.be.true;
-            })
-        })
     })
-    describe('PUT /users/:id/queue', function () {
+    describe('PUT /users/queue', function () {
         describe('provided a valid video id in request body', function () {
-            describe('provided valid session id', function () {
                 it('should return the updated queue', async () => {
                     nock(DB_API_URL)
-                        .get(`/users/${userId}`)
-                        .reply(200, { id: userId, email: "example@gmail.com", password: password })
+                       .get(/users\?query=.*/)
+                        .reply(200, { id: userId, username: "username", password: password })
                         .persist()
-                        .get(`/sessions/${sessionId}?populate=user`)
-                        .reply(200, { id: sessionId, user: { id: '1234', name: 'user' } })
                         .get(`/videos/${videoId}`)
                         .reply(200, video)
-                        .put(`/users/${userId}/queue/${videoId}`)
+                        .put(`/users/${username}/queue/${videoId}`)
                         .reply(200, [video])
 
-                    const response = await instance.put(`/users/${userId}/queue`, { videoId }, { headers: { 'x-session-id': sessionId } });
+                    const response = await instance.put(`/users/queue`, { videoId }, { headers: { 'x-consumer-username': username } });
 
                     expect(response.status).to.equal(200);
                     expect(response.data).to.be.an('array');
                     expect(response.data).to.deep.contain(video);
                 })
-            })
-            describe('incorrect session id', function () {
-                it('should return response with 401 Unauthorized', async () => {
-                    nock(DB_API_URL)
-                        .get(`/users/${userId}`)
-                        .reply(200, { id: userId, email: "example@gmail.com", password: password })
-                        .persist()
-                        .get(`/sessions/${sessionId}?populate=user`)
-                        .reply(404)
-
-                    const response = await instance.put(`/users/${userId}/queue`, { videoId }, { headers: { 'x-session-id': sessionId } });
-
-                    expect(response.status).to.equal(401);
-                    expect(isError(response.data)).to.be.true;
-                })
-            })
             describe('user with id does not exist', function () {
                 it('should return response with 404 Not found', async () => {
                     nock(DB_API_URL)
-                        .get(`/users/${userId}`)
+                       .get(/users\?query=.*/)
                         .reply(404)
 
-                    const response = await instance.put(`/users/${userId}/queue`, { videoId }, { headers: { 'x-session-id': sessionId } });
+                    const response = await instance.put(`/users/${userId}/queue`, { videoId }, { headers: { 'x-consumer-username': username } });
 
                     expect(response.status).to.equal(404);
                     expect(isError(response.data)).to.be.true;
                 })
             })
         })
-        describe('provided an invalid video in request body with valid user id and valid session id', function () {
+        describe('provided an invalid video in request body with valid username', function () {
             it('should return response with 400 Bad request', async function () {
-                nock(DB_API_URL)
-                    .get(`/sessions/${sessionId}?populate=user`)
-                    .reply(200, { id: sessionId, user: { id: '1234', name: 'user' } })
-                const videoId = '1';
 
-                const response = await instance.put(`/users/${userId}/queue`, { something: 123 }, { headers: { 'x-session-id': sessionId } });
+                const response = await instance.put(`/users/queue`, { something: 123 }, { headers: { 'x-consumer-username': username } });
 
                 expect(response.status).to.equal(400);
                 expect(isError(response.data)).to.be.true;
@@ -229,48 +199,29 @@ describe('Mocked Users resource', function () {
         })
 
     })
-    describe('GET /users/:id/queue?sort=id', function () {
-        describe('provided valid session id', function () {
+    describe('GET /users/queue?sort=id', function () {
             it('should return the queue', async () => {
                 nock(DB_API_URL)
-                    .get(`/users/${userId}`)
-                    .reply(200, { id: userId, email: "example@gmail.com", password: password })
+                   .get(/users\?query=.*/)
+                    .reply(200, { id: userId, username: "username", password: password })
                     .persist()
-                    .get(`/sessions/${sessionId}?populate=user`)
-                    .reply(200, { id: sessionId, user: { id: '1234', name: 'user' } })
-                    .get(`/users/${userId}/queue?sort=id`)
+                    .get(`/users/${username}/queue?sort=id`)
                     .reply(200, [video])
 
-                const response = await instance.get(`/users/${userId}/queue?sort=id`, { headers: { 'x-session-id': sessionId } });
+                const response = await instance.get(`/users/queue?sort=id`, { headers: { 'x-consumer-username': username } });
 
                 expect(response.status).to.equal(200);
                 expect(response.data).to.be.an('array')
                 expect(response.data).to.deep.contain(video);
                 expect(response.data.length).to.equal(1);
             })
-        })
-        describe('no or incorrect session id', function () {
-            it('should return response with 401 Unauthorized', async function () {
-                nock(DB_API_URL)
-                    .get(`/users/${userId}`)
-                    .reply(200, { id: userId, email: "example@gmail.com", password: password })
-                    .persist()
-                    .get(`/sessions/${sessionId}?populate=user`)
-                    .reply(404)
-
-                const response = await instance.get(`/users/${userId}/queue?sort=id`, { headers: { 'x-session-id': sessionId } });
-
-                expect(response.status).to.equal(401);
-                expect(isError(response.data)).to.be.true;
-            })
-        })
         describe('user with id does not exist', function () {
             it('should return response with 404 Not found', async function () {
                 nock(DB_API_URL)
-                    .get(`/users/${userId}`)
+                   .get(/users\?query=.*/)
                     .reply(404)
 
-                const response = await instance.get(`/users/${userId}/queue?sort=id`, { headers: { 'x-session-id': sessionId } });
+                const response = await instance.get(`/users/${userId}/queue?sort=id`, { headers: { 'x-consumer-username': username } });
 
                 expect(response.status).to.equal(404);
                 expect(isError(response.data)).to.be.true;

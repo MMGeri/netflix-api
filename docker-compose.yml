@@ -6,10 +6,9 @@ services:
   api:
     environment:
       - VIRTUAL_HOST=netflix.local
-      - DB_API_PORT=10021
       - ADMIN_API_KEY=${ADMIN_API_KEY}
       - PORT=10020
-      - DB_API=netflix-db-api
+      - DB_API=http://netflix-db-api:10021
     networks: 
       - netflix
     depends_on:
